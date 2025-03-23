@@ -32,9 +32,10 @@ jobs:
           eval "$(/opt/homebrew/bin/brew shellenv)"
           export PATH="$HOME/.local/bin:$PATH"
           echo "🔧 PATH = $PATH"
-          
+
           # Explicitly add brew cask path for GUI tools
           export PATH="/opt/homebrew/bin:$PATH"
+          export PATH="/opt/homebrew/Caskroom:$PATH"
           echo "🔧 Updated PATH = $PATH"
 
       - name: Run setup-devops-gui.sh with --all
