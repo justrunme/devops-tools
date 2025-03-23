@@ -23,7 +23,7 @@ jobs:
           brew install charmbracelet/tap/gum
 
       - name: Run setup-devops-cli.sh with --all
-        shell: bash
+        shell: bash {0}
         run: |
           chmod +x setup-devops-cli.sh
           ./setup-devops-cli.sh --all
