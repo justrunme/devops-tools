@@ -21,31 +21,14 @@ if ! command -v pipx &>/dev/null; then
   pipx ensurepath
 fi
 
-# ---------- Массив команд для установки ----------
-
-INSTALL_COMMANDS=(
-  "git=brew install git"
-  "zsh=brew install zsh"
-  "fzf=brew install fzf"
-  "jq=brew install jq"
-  "bat=brew install bat"
-  "tree=brew install tree"
-  "kubectl=brew install kubectl"
-  "helm=brew install helm"
-  "k9s=brew install k9s"
-  "terraform=brew install terraform"
-  "awscli=pipx install awscli"
-  "az=brew install azure-cli"
-  "gh=brew install gh"
-  "glab=brew install glab"
-  "pipx=brew install pipx && pipx ensurepath"
-  "ansible=pipx install ansible"
-  "act=brew install act"
-  "direnv=brew install direnv"
-  "zoxide=brew install zoxide"
-  "httpie=brew install httpie"
-  "cheat=brew install cheat"
-  "btop=brew install btop"
+# ---------- GUI-инструменты ----------
+INSTALL_GUI_COMMANDS=(
+  "Docker Desktop:brew install --cask docker"
+  "Google Cloud SDK:brew install --cask google-cloud-sdk"
+  "Visual Studio Code:brew install --cask visual-studio-code"
+  "iTerm2 Terminal:brew install --cask iterm2"
+  "Tailscale VPN:brew install --cask tailscale"
+  "Ngrok Tunnel:brew install --cask ngrok"
 )
 
 # ---------- Аргументы ----------
@@ -55,58 +38,40 @@ for arg in "$@"; do
   [[ "$arg" == "-a" ]] && ALL=true
 done
 
-# ---------- Список инструментов ----------
-TOOL_LIST=(
-  "🛠️ [CORE] git"
-  "🛠️ [CORE] zsh"
-  "🛠️ [CORE] fzf"
-  "🛠️ [CORE] jq"
-  "🛠️ [CORE] bat"
-  "🛠️ [CORE] tree"
-  "☸️ [KUBERNETES] kubectl"
-  "☸️ [KUBERNETES] helm"
-  "☸️ [KUBERNETES] k9s"
-  "📦 [INFRA] terraform"
-  "☁️ [CLOUD] awscli"
-  "☁️ [CLOUD] az"
-  "☁️ [CLOUD] gh"
-  "☁️ [CLOUD] glab"
-  "⚙️ [DEVTOOLS] pipx"
-  "⚙️ [DEVTOOLS] ansible"
-  "⚡ [EXTRAS] act"
-  "🔧 [UTILITIES] direnv"
-  "🔧 [UTILITIES] zoxide"
-  "🔧 [UTILITIES] httpie"
-  "🔧 [UTILITIES] cheat"
-  "🔧 [UTILITIES] btop"
+# ---------- Список GUI тулзов ----------
+GUI_TOOL_LIST=(
+  "🐳 Docker Desktop"
+  "☁️ Google Cloud SDK"
+  "📝 Visual Studio Code"
+  "💻 iTerm2 Terminal"
+  "🔒 Tailscale VPN"
+  "🌐 Ngrok Tunnel"
 )
 
-# ---------- Выбор инструментов ----------
+# ---------- Выбор GUI инструментов ----------
 if $ALL; then
-  CHOICES="${TOOL_LIST[@]}"
+  CHOICES="${GUI_TOOL_LIST[@]}"
 else
-  CHOICES=$(gum choose --no-limit --height=40 --header="Выбери инструменты для установки (CI-friendly):" <<< "${TOOL_LIST[*]}")
+  CHOICES=$(gum choose --no-limit --height=20 --header="Выбери GUI-инструменты для установки:" <<< "${GUI_TOOL_LIST[*]}")
 fi
 
-# ---------- Установка выбранных инструментов ----------
+# ---------- Установка выбранных тулзов ----------
 for item in $CHOICES; do
-  TOOL=$(echo "$item" | awk '{print $3}')
-  
-  # Проверка, установлен ли инструмент
-  if command -v "$TOOL" &>/dev/null; then
-    success "$TOOL уже установлен, пропускаю установку."
-    continue
-  fi
-
-  # Установка инструмента, если он не установлен
-  for cmd in "${INSTALL_COMMANDS[@]}"; do
-    if [[ "$cmd" == "$TOOL"* ]]; then
-      COMD=$(echo "$cmd" | cut -d '=' -f2-)
-      gum spin --title "Устанавливаю $TOOL..." -- bash -c "$COMD"
-      success "$TOOL установлен"
+  TOOL=$(echo "$item" | cut -d ' ' -f2-)
+  for cmd in "${INSTALL_GUI_COMMANDS[@]}"; do
+    TOOL_NAME=$(echo "$cmd" | cut -d ':' -f1)
+    TOOL_CMD=$(echo "$cmd" | cut -d ':' -f2-)
+    if [[ "$TOOL" == "$TOOL_NAME" ]]; then
+      # Проверка, установлен ли инструмент
+      if brew list --cask "$TOOL_NAME" &>/dev/null; then
+        success "$TOOL уже установлен, пропускаю установку."
+      else
+        gum spin --title "Устанавливаю $TOOL..." -- bash -c "$TOOL_CMD"
+        success "$TOOL установлен"
+      fi
     fi
   done
 done
 
 # ---------- Финал ----------
-echo -e "\n${GREEN}Установка завершена! Перезапусти терминал или выполни: source ~/.zshrc${NC}"
+echo -e "\n${GREEN}Установка GUI-инструментов завершена!${NC}"
