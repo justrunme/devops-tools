@@ -62,13 +62,6 @@ jobs:
             fi
           done
 
-          # Try to open apps (helps with macOS GUI apps that need to be activated)
-          open -a "Docker"
-          open -a "Visual Studio Code"
-          open -a "iTerm"
-          open -a "Tailscale"
-          open -a "Ngrok"
-
           # Check if tools are available
           GUI_CLI_TOOLS=(
             docker
