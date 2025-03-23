@@ -44,8 +44,26 @@ jobs:
           chmod +x setup-devops-gui.sh
           bash setup-devops-gui.sh --all
 
-      - name: Verify GUI tools via CLI
+      - name: Ensure GUI tools are available
         run: |
+          # Add directories where brew cask installs apps
+          GUI_TOOL_PATHS=(
+            "/opt/homebrew/Caskroom/docker/latest/Docker.app/Contents/MacOS"
+            "/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin"
+            "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+            "/Applications/iTerm.app/Contents/MacOS"
+            "/opt/homebrew/Caskroom/tailscale/latest/Tailscale.app/Contents/MacOS"
+            "/opt/homebrew/Caskroom/ngrok/latest/ngrok"
+          )
+          
+          # Add paths to the system PATH
+          for dir in "${GUI_TOOL_PATHS[@]}"; do
+            if [[ -d "$dir" ]]; then
+              export PATH="$PATH:$dir"
+            fi
+          done
+
+          # Check if tools are available
           GUI_CLI_TOOLS=(
             docker
             gcloud
