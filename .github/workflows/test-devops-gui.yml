@@ -28,7 +28,6 @@ jobs:
 
       - name: Configure shell environment
         run: |
-          # Ensure Homebrew is available in PATH
           eval "$(/opt/homebrew/bin/brew shellenv)"
           export PATH="$HOME/.local/bin:$PATH"
           echo "🔧 PATH = $PATH"
@@ -62,6 +61,13 @@ jobs:
               export PATH="$PATH:$dir"
             fi
           done
+
+          # Try to open apps (helps with macOS GUI apps that need to be activated)
+          open -a "Docker"
+          open -a "Visual Studio Code"
+          open -a "iTerm"
+          open -a "Tailscale"
+          open -a "Ngrok"
 
           # Check if tools are available
           GUI_CLI_TOOLS=(
