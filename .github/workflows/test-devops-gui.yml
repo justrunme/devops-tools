@@ -31,6 +31,8 @@ jobs:
           eval "$(/opt/homebrew/bin/brew shellenv)"
           export PATH="$HOME/.local/bin:$PATH"
           echo "🔧 PATH = $PATH"
+          echo "🔧 Проверяем установленные пакеты через Homebrew"
+          brew list
 
       - name: Run setup-devops-gui.sh with --all
         shell: bash
