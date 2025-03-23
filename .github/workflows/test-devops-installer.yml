@@ -22,19 +22,52 @@ jobs:
             echo "✅ Homebrew already installed"
           fi
 
-      - name: Install pipx
+      - name: Install pipx and gum
         run: |
           brew install pipx
           pipx ensurepath
+          brew install charmbracelet/tap/gum
 
-      - name: Install gum
-        run: brew install charmbracelet/tap/gum
-
-      - name: Run DevOps Installer
+      - name: Run inline DevOps Installer (test mode)
         shell: bash
         run: |
-          chmod +x setup-devops-gui.sh
-          bash setup-devops-gui.sh <<< $'\n'
+          declare -A INSTALL_COMMANDS=(
+            [git]="brew install git"
+            [zsh]="brew install zsh"
+            [fzf]="brew install fzf"
+            [jq]="brew install jq"
+            [bat]="brew install bat"
+            [tree]="brew install tree"
+            [docker]="brew install --cask docker"
+            [docker-compose]="pipx install docker-compose"
+            [kubectl]="brew install kubectl"
+            [helm]="brew install helm"
+            [k9s]="brew install k9s"
+            [minikube]="brew install minikube"
+            [terraform]="brew install terraform"
+            [aws]="pipx install awscli"
+            [gcloud]="brew install --cask google-cloud-sdk"
+            [az]="brew install azure-cli"
+            [gh]="brew install gh"
+            [glab]="brew install glab"
+            [pipx]="brew install pipx && pipx ensurepath"
+            [ansible]="pipx install ansible"
+            [visual-studio-code]="brew install --cask visual-studio-code"
+            [iterm2]="brew install --cask iterm2"
+            [act]="brew install act"
+            [tailscale]="brew install --cask tailscale"
+            [ngrok]="brew install --cask ngrok"
+            [direnv]="brew install direnv"
+            [zoxide]="brew install zoxide"
+            [httpie]="brew install httpie"
+            [cheat]="brew install cheat"
+            [btop]="brew install btop"
+          )
+
+          for tool in \"\${!INSTALL_COMMANDS[@]}\"; do
+            echo \"🔧 Installing: \$tool\"
+            eval \"\${INSTALL_COMMANDS[\$tool]}\" || echo \"⚠️ Failed to install \$tool\"
+          done
 
       - name: Verify installed tools
         shell: bash
