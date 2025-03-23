@@ -4,9 +4,11 @@ set -e
 # ---------- Цвета и функции ----------
 GREEN="\033[0;32m"
 YELLOW="\033[1;33m"
+RED="\033[0;31m"
 NC="\033[0m"
 function info()    { echo -e "${YELLOW}[INFO]${NC} $1"; }
 function success() { echo -e "${GREEN}[OK]${NC} $1"; }
+function failure() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # ---------- Проверка gum ----------
 if ! command -v gum &>/dev/null; then
@@ -26,6 +28,8 @@ ALL=false
 for arg in "$@"; do
   [[ "$arg" == "--all" ]] && ALL=true
   [[ "$arg" == "-a" ]] && ALL=true
+  [[ "$arg" == "--debug" ]] && set -x
+  [[ "$arg" == "--no-color" ]] && GREEN="" && YELLOW="" && RED="" && NC=""
 done
 
 # ---------- Список тулзов ----------
@@ -64,15 +68,20 @@ fi
 # ---------- Установка выбранных тулзов ----------
 for TOOL in $CHOICES; do
   case "$TOOL" in
-    awscli)      CMD="pipx install awscli" ;;
-    pipx)        CMD="brew install pipx && pipx ensurepath" ;;
-    ansible)     CMD="pipx install ansible" ;;
+    awscli)  CMD="pipx install awscli" ;;
+    pipx)    CMD="brew install pipx && pipx ensurepath" ;;
+    ansible) CMD="pipx install ansible" ;;
     docker-compose) CMD="pipx install docker-compose" ;;
-    *)           CMD="brew install $TOOL" ;;
+    *)       CMD="brew install $TOOL" ;;
   esac
 
-  gum spin --title "Устанавливаю $TOOL..." -- bash -c "$CMD"
-  success "$TOOL установлен"
+  info "Устанавливаю $TOOL..."
+  if bash -c "$CMD"; then
+    success "$TOOL установлен"
+  else
+    failure "$TOOL не удалось установить"
+  fi
+
 done
 
 # ---------- Финал ----------
