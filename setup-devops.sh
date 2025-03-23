@@ -21,30 +21,31 @@ if ! command -v pipx &>/dev/null; then
   pipx ensurepath
 fi
 
-# ---------- Маппинг тулзов на команды (CI-friendly only) ----------
-declare -A INSTALL_COMMANDS=(
-  [git]="brew install git"
-  [zsh]="brew install zsh"
-  [fzf]="brew install fzf"
-  [jq]="brew install jq"
-  [bat]="brew install bat"
-  [tree]="brew install tree"
-  [kubectl]="brew install kubectl"
-  [helm]="brew install helm"
-  [k9s]="brew install k9s"
-  [terraform]="brew install terraform"
-  [awscli]="pipx install awscli"
-  [az]="brew install azure-cli"
-  [gh]="brew install gh"
-  [glab]="brew install glab"
-  [pipx]="brew install pipx && pipx ensurepath"
-  [ansible]="pipx install ansible"
-  [act]="brew install act"
-  [direnv]="brew install direnv"
-  [zoxide]="brew install zoxide"
-  [httpie]="brew install httpie"
-  [cheat]="brew install cheat"
-  [btop]="brew install btop"
+# ---------- Массив команд для установки ----------
+
+INSTALL_COMMANDS=(
+  "git=brew install git"
+  "zsh=brew install zsh"
+  "fzf=brew install fzf"
+  "jq=brew install jq"
+  "bat=brew install bat"
+  "tree=brew install tree"
+  "kubectl=brew install kubectl"
+  "helm=brew install helm"
+  "k9s=brew install k9s"
+  "terraform=brew install terraform"
+  "awscli=pipx install awscli"
+  "az=brew install azure-cli"
+  "gh=brew install gh"
+  "glab=brew install glab"
+  "pipx=brew install pipx && pipx ensurepath"
+  "ansible=pipx install ansible"
+  "act=brew install act"
+  "direnv=brew install direnv"
+  "zoxide=brew install zoxide"
+  "httpie=brew install httpie"
+  "cheat=brew install cheat"
+  "btop=brew install btop"
 )
 
 # ---------- Аргументы ----------
@@ -54,8 +55,8 @@ for arg in "$@"; do
   [[ "$arg" == "-a" ]] && ALL=true
 done
 
-# ---------- Список тулзов ----------
-TOOL_LIST=( 
+# ---------- Список инструментов ----------
+TOOL_LIST=(
   "🛠️ [CORE] git"
   "🛠️ [CORE] zsh"
   "🛠️ [CORE] fzf"
@@ -87,16 +88,16 @@ else
   CHOICES=$(gum choose --no-limit --height=40 --header="Выбери инструменты для установки (CI-friendly):" <<< "${TOOL_LIST[*]}")
 fi
 
-# ---------- Установка выбранных тулзов ----------
+# ---------- Установка выбранных инструментов ----------
 for item in $CHOICES; do
   TOOL=$(echo "$item" | awk '{print $3}')
-  CMD="${INSTALL_COMMANDS[$TOOL]}"
-  if [[ -n "$CMD" ]]; then
-    gum spin --title "Устанавливаю $TOOL..." -- bash -c "$CMD"
-    success "$TOOL установлен"
-  else
-    info "$TOOL не найден в INSTALL_COMMANDS — пропущен"
-  fi
+  for cmd in "${INSTALL_COMMANDS[@]}"; do
+    if [[ "$cmd" == "$TOOL"* ]]; then
+      COMD=$(echo "$cmd" | cut -d '=' -f2-)
+      gum spin --title "Устанавливаю $TOOL..." -- bash -c "$COMD"
+      success "$TOOL установлен"
+    fi
+  done
 done
 
 # ---------- Финал ----------
