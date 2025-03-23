@@ -91,6 +91,14 @@ fi
 # ---------- Установка выбранных инструментов ----------
 for item in $CHOICES; do
   TOOL=$(echo "$item" | awk '{print $3}')
+  
+  # Проверка, установлен ли инструмент
+  if command -v "$TOOL" &>/dev/null; then
+    success "$TOOL уже установлен, пропускаю установку."
+    continue
+  fi
+
+  # Установка инструмента, если он не установлен
   for cmd in "${INSTALL_COMMANDS[@]}"; do
     if [[ "$cmd" == "$TOOL"* ]]; then
       COMD=$(echo "$cmd" | cut -d '=' -f2-)
