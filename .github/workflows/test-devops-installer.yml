@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           chmod +x setup-devops-gui.sh
-          bash ./setup-devops-gui.sh <<< $'\n'
+          bash setup-devops-gui.sh <<< $'\n'
 
       - name: Verify installed tools
         shell: bash
