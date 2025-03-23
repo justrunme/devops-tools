@@ -32,47 +32,40 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           echo "🔧 PATH = $PATH"
 
-          # Explicitly add brew cask path for GUI tools
-          export PATH="/opt/homebrew/bin:$PATH"
-          export PATH="/opt/homebrew/Caskroom:$PATH"
-          echo "🔧 Updated PATH = $PATH"
-
       - name: Run setup-devops-gui.sh with --all
         shell: bash
         run: |
           chmod +x setup-devops-gui.sh
           bash setup-devops-gui.sh --all
 
-      - name: Check CLI Tools Installation Directories
+      - name: Check CLI Tools Installation
         run: |
-          # Check and set installation paths for GUI tools (if applicable)
-          GUI_TOOL_PATHS=(
-            "/opt/homebrew/Caskroom/docker/latest/Docker.app/Contents/MacOS"
-            "/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin"
-            "/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
-            "/Applications/iTerm.app/Contents/MacOS"
-            "/opt/homebrew/Caskroom/tailscale/latest/Tailscale.app/Contents/MacOS"
-            "/opt/homebrew/Caskroom/ngrok/latest/ngrok"
-          )
-          
-          # Add paths to the system PATH for CLI tools if available
-          for dir in "${GUI_TOOL_PATHS[@]}"; do
-            if [[ -d "$dir" ]]; then
-              export PATH="$PATH:$dir"
-            fi
-          done
-
-          # Check only CLI tools here
           CLI_TOOLS=(
-            docker
-            gcloud
-            code
-            iterm2
-            tailscale
-            ngrok
+            git
+            zsh
+            fzf
+            jq
+            bat
+            tree
+            kubectl
+            helm
+            k9s
+            terraform
+            awscli
+            az
+            gh
+            glab
+            pipx
+            ansible
+            act
+            direnv
+            zoxide
+            httpie
+            cheat
+            btop
           )
 
-          echo "🔍 Проверка инструментов по CLI..."
+          echo "🔍 Проверка CLI инструментов..."
           FAIL=0
           for tool in "${CLI_TOOLS[@]}"; do
             if ! command -v "$tool" &>/dev/null; then
@@ -84,7 +77,7 @@ jobs:
           done
 
           if [[ "$FAIL" -ne 0 ]]; then
-            echo "❌ Некоторые инструменты не установлены или не работают"
+            echo "❌ Некоторые инструменты не установлены"
             exit 1
           fi
 
