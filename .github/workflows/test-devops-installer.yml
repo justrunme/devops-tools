@@ -13,8 +13,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Homebrew, pipx and gum
+      - name: Ensure Bash, Homebrew, pipx and gum
         run: |
+          echo "Shell version: $BASH_VERSION"
           if ! command -v brew &>/dev/null; then
             NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
           fi
@@ -22,7 +23,7 @@ jobs:
           pipx ensurepath
           brew install charmbracelet/tap/gum
 
-      - name: Run setup-devops-cli.sh with --all
+      - name: Run setup-devops-cli.sh with --all using Bash
         run: |
           chmod +x setup-devops-cli.sh
           bash setup-devops-cli.sh --all
