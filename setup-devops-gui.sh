@@ -21,45 +21,25 @@ if ! command -v pipx &>/dev/null; then
   pipx ensurepath
 fi
 
-# ---------- Маппинг тулзов на команды ----------
+# ---------- Маппинг тулзов на команды (CI-friendly only) ----------
 declare -A INSTALL_COMMANDS=(
-  [brew]="brew install brew"
   [git]="brew install git"
   [zsh]="brew install zsh"
-  [oh-my-zsh]="sh -c \"\$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\""
   [fzf]="brew install fzf"
   [jq]="brew install jq"
   [bat]="brew install bat"
   [tree]="brew install tree"
-  [docker]="brew install --cask docker"
-  [docker-compose]="pipx install docker-compose"
-  [lazydocker]="brew install lazydocker"
   [kubectl]="brew install kubectl"
   [helm]="brew install helm"
   [k9s]="brew install k9s"
-  [minikube]="brew install minikube"
-  [kind]="brew install kind"
-  [kubectx]="brew install kubectx"
-  [kubens]="brew install kubens"
-  [skaffold]="brew install skaffold"
-  [kustomize]="brew install kustomize"
+  [terraform]="brew install terraform"
   [awscli]="pipx install awscli"
-  [gcloud]="brew install --cask google-cloud-sdk"
   [az]="brew install azure-cli"
   [gh]="brew install gh"
   [glab]="brew install glab"
   [pipx]="brew install pipx && pipx ensurepath"
   [ansible]="pipx install ansible"
-  [visual-studio-code]="brew install --cask visual-studio-code"
-  [iterm2]="brew install --cask iterm2"
   [act]="brew install act"
-  [tilt]="brew install tilt"
-  [tailscale]="brew install --cask tailscale"
-  [ngrok]="brew install --cask ngrok"
-  [terraform]="brew install terraform"
-  [tfsec]="brew install tfsec"
-  [tflint]="brew install tflint"
-  [terragrunt]="brew install terragrunt"
   [direnv]="brew install direnv"
   [zoxide]="brew install zoxide"
   [httpie]="brew install httpie"
@@ -68,44 +48,24 @@ declare -A INSTALL_COMMANDS=(
 )
 
 # ---------- Список с категориями ----------
-CHOICES=$(gum choose --no-limit --height=40 --header="Выбери инструменты для установки:" <<EOF
-🛠️ [CORE] brew
+CHOICES=$(gum choose --no-limit --height=40 --header="Выбери инструменты для установки (CI-friendly):" <<EOF
 🛠️ [CORE] git
 🛠️ [CORE] zsh
-🛠️ [CORE] oh-my-zsh
 🛠️ [CORE] fzf
 🛠️ [CORE] jq
 🛠️ [CORE] bat
 🛠️ [CORE] tree
-🐳 [DOCKER] docker
-🐳 [DOCKER] docker-compose
-🐳 [DOCKER] lazydocker
 ☸️ [KUBERNETES] kubectl
 ☸️ [KUBERNETES] helm
 ☸️ [KUBERNETES] k9s
-☸️ [KUBERNETES] minikube
-☸️ [KUBERNETES] kind
-☸️ [KUBERNETES] kubectx
-☸️ [KUBERNETES] kubens
-☸️ [KUBERNETES] skaffold
-☸️ [KUBERNETES] kustomize
+📦 [INFRA] terraform
 ☁️ [CLOUD] awscli
-☁️ [CLOUD] gcloud
 ☁️ [CLOUD] az
 ☁️ [CLOUD] gh
 ☁️ [CLOUD] glab
 ⚙️ [DEVTOOLS] pipx
 ⚙️ [DEVTOOLS] ansible
-⚙️ [DEVTOOLS] visual-studio-code
-⚙️ [DEVTOOLS] iterm2
 ⚡ [EXTRAS] act
-⚡ [EXTRAS] tilt
-⚡ [EXTRAS] tailscale
-⚡ [EXTRAS] ngrok
-📦 [INFRA] terraform
-📦 [INFRA] tfsec
-📦 [INFRA] tflint
-📦 [INFRA] terragrunt
 🔧 [UTILITIES] direnv
 🔧 [UTILITIES] zoxide
 🔧 [UTILITIES] httpie
