@@ -33,10 +33,10 @@ jobs:
           echo "🔧 PATH = $PATH"
 
       - name: Run setup-devops-gui.sh with --all
-        shell: bash  # Убедись, что запускается через bash
+        shell: bash
         run: |
           chmod +x setup-devops-gui.sh
-          bash setup-devops-gui.sh --all
+          bash setup-devops-gui.sh --all || { echo "Ошибка при установке GUI инструментов"; exit 1; }
 
       - name: Verify GUI tools via CLI
         run: |
