@@ -1,4 +1,4 @@
-name: Test DevOps Installer
+name: Test DevOps CLI Installer
 
 on:
   push:
@@ -22,13 +22,13 @@ jobs:
           pipx ensurepath
           brew install charmbracelet/tap/gum
 
-      - name: Run DevOps Installer with --all
+      - name: Run setup-devops-cli.sh with --all
         shell: bash
         run: |
-          chmod +x setup-devops-gui.sh
-          ./setup-devops-gui.sh --all
+          chmod +x setup-devops-cli.sh
+          ./setup-devops-cli.sh --all
 
-      - name: Verify installed tools
+      - name: Verify installed CLI tools
         shell: bash
         run: |
           TOOLS=(
@@ -38,7 +38,7 @@ jobs:
             act direnv zoxide httpie cheat btop
           )
 
-          echo "🔍 Проверка установленных инструментов..."
+          echo "🔍 Проверка установленных CLI-инструментов..."
           FAIL=0
           for tool in "${TOOLS[@]}"; do
             if ! command -v "$tool" &>/dev/null; then
@@ -50,10 +50,10 @@ jobs:
           done
 
           if [[ "$FAIL" -ne 0 ]]; then
-            echo "❌ Некоторые инструменты не были установлены"
+            echo "❌ Некоторые CLI-инструменты не были установлены"
             exit 1
           fi
 
       - name: Success
         if: success()
-        run: echo "🎉 Все DevOps-инструменты успешно установлены и проверены!"
+        run: echo "🎉 Все CLI-инструменты DevOps успешно установлены и проверены!"
