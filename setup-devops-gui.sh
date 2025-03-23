@@ -14,6 +14,13 @@ if ! command -v gum &>/dev/null; then
   brew install charmbracelet/tap/gum
 fi
 
+# ---------- Проверка pipx ----------
+if ! command -v pipx &>/dev/null; then
+  info "Устанавливаю pipx..."
+  brew install pipx
+  pipx ensurepath
+fi
+
 # ---------- Маппинг тулзов на команды ----------
 declare -A INSTALL_COMMANDS=(
   [brew]="brew install brew"
