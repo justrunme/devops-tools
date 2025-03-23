@@ -1,4 +1,4 @@
-name: Test DevOps GUI Installer
+name: Test DevOps CLI Installer
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  test-devops-gui:
+  test-devops-cli:
     runs-on: macos-latest
     defaults:
       run:
@@ -32,11 +32,11 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           echo "🔧 PATH = $PATH"
 
-      - name: Run setup-devops-gui.sh with --all
+      - name: Run setup-devops-cli.sh with --all
         shell: bash
         run: |
-          chmod +x setup-devops-gui.sh
-          bash setup-devops-gui.sh --all
+          chmod +x setup-devops-cli.sh
+          bash setup-devops-cli.sh --all
 
       - name: Check CLI Tools Installation
         run: |
@@ -73,6 +73,13 @@ jobs:
               FAIL=1
             else
               echo "✅ $tool доступен"
+              # Проверим, установлен ли инструмент через brew
+              if brew list --formula | grep -q "^$tool$"; then
+                echo "✅ $tool установлен через brew"
+              else
+                echo "❌ $tool не найден в brew list"
+                FAIL=1
+              fi
             fi
           done
 
