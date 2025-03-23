@@ -60,13 +60,13 @@ TOOL_LIST=(
 
 # ---------- Выбор инструментов ----------
 if $ALL; then
-  CHOICES=("${TOOL_LIST[@]}")
+  CHOICES=( "${TOOL_LIST[@]}" )
 else
-  CHOICES=$(gum choose --no-limit --height=30 --header="Выбери CLI-инструменты для установки:" "${TOOL_LIST[@]}")
+  readarray -t CHOICES < <(gum choose --no-limit --height=30 --header="Выбери CLI-инструменты для установки:" "${TOOL_LIST[@]}")
 fi
 
 # ---------- Установка выбранных тулзов ----------
-for TOOL in $CHOICES; do
+for TOOL in "${CHOICES[@]}"; do
   case "$TOOL" in
     awscli)  CMD="pipx install awscli" ;;
     pipx)    CMD="brew install pipx && pipx ensurepath" ;;
