@@ -1,96 +1,101 @@
-name: Test Universal DevOps Installer
+#!/usr/bin/env bash
+set -e
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+# ---------- Цвета и функции ----------
+GREEN="\033[0;32m"
+YELLOW="\033[1;33m"
+NC="\033[0m"
+function info()    { echo -e "${YELLOW}[INFO]${NC} $1"; }
+function success() { echo -e "${GREEN}[OK]${NC} $1"; }
 
-jobs:
-  test-devops:
-    runs-on: macos-latest
-    defaults:
-      run:
-        shell: bash
+# ---------- Проверка gum ----------
+if ! command -v gum &>/dev/null; then
+  info "Устанавливаю gum..."
+  brew install charmbracelet/tap/gum
+fi
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+# ---------- Проверка pipx ----------
+if ! command -v pipx &>/dev/null; then
+  info "Устанавливаю pipx..."
+  brew install pipx
+  pipx ensurepath
+fi
 
-      - name: Install Homebrew, pipx and gum
-        run: |
-          if ! command -v brew &>/dev/null; then
-            NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          fi
-          brew update
-          brew install pipx
-          pipx ensurepath
-          brew install charmbracelet/tap/gum
+# ---------- Маппинг тулзов на команды (CI-friendly only) ----------
+INSTALL_COMMANDS=("git=brew install git"
+  "zsh=brew install zsh"
+  "fzf=brew install fzf"
+  "jq=brew install jq"
+  "bat=brew install bat"
+  "tree=brew install tree"
+  "kubectl=brew install kubectl"
+  "helm=brew install helm"
+  "k9s=brew install k9s"
+  "terraform=brew install terraform"
+  "awscli=pipx install awscli"
+  "az=brew install azure-cli"
+  "gh=brew install gh"
+  "glab=brew install glab"
+  "pipx=brew install pipx && pipx ensurepath"
+  "ansible=pipx install ansible"
+  "act=brew install act"
+  "direnv=brew install direnv"
+  "zoxide=brew install zoxide"
+  "httpie=brew install httpie"
+  "cheat=brew install cheat"
+  "btop=brew install btop")
 
-      - name: Configure shell environment
-        run: |
-          eval "$(/opt/homebrew/bin/brew shellenv)"
-          export PATH="$HOME/.local/bin:$PATH"
-          echo "🔧 PATH = $PATH"
+# ---------- Аргументы ----------
+ALL=false
+for arg in "$@"; do
+  [[ "$arg" == "--all" ]] && ALL=true
+  [[ "$arg" == "-a" ]] && ALL=true
+done
 
-      - name: Run setup-devops.sh with --all
-        shell: bash
-        run: |
-          chmod +x setup-devops.sh
-          bash setup-devops.sh --all --debug
+# ---------- Список тулзов ----------
+TOOL_LIST=(
+  "🛠️ [CORE] git"
+  "🛠️ [CORE] zsh"
+  "🛠️ [CORE] fzf"
+  "🛠️ [CORE] jq"
+  "🛠️ [CORE] bat"
+  "🛠️ [CORE] tree"
+  "☸️ [KUBERNETES] kubectl"
+  "☸️ [KUBERNETES] helm"
+  "☸️ [KUBERNETES] k9s"
+  "📦 [INFRA] terraform"
+  "☁️ [CLOUD] awscli"
+  "☁️ [CLOUD] az"
+  "☁️ [CLOUD] gh"
+  "☁️ [CLOUD] glab"
+  "⚙️ [DEVTOOLS] pipx"
+  "⚙️ [DEVTOOLS] ansible"
+  "⚡ [EXTRAS] act"
+  "🔧 [UTILITIES] direnv"
+  "🔧 [UTILITIES] zoxide"
+  "🔧 [UTILITIES] httpie"
+  "🔧 [UTILITIES] cheat"
+  "🔧 [UTILITIES] btop"
+)
 
-      - name: Verify CLI tools installed
-        run: |
-          CLI_TOOLS=(
-            git zsh fzf jq bat tree
-            kubectl helm k9s terraform
-            aws az gh glab pipx ansible
-            act direnv zoxide httpie cheat btop
-          )
+# ---------- Выбор инструментов ----------
+if $ALL; then
+  CHOICES="${TOOL_LIST[@]}"
+else
+  CHOICES=$(gum choose --no-limit --height=40 --header="Выбери инструменты для установки (CI-friendly):" <<< "${TOOL_LIST[*]}")
+fi
 
-          echo "🔍 Проверка CLI-инструментов..."
-          FAIL=0
-          for tool in "${CLI_TOOLS[@]}"; do
-            if ! command -v "$tool" &>/dev/null; then
-              echo "❌ $tool НЕ УСТАНОВЛЕН"
-              FAIL=1
-            else
-              echo "✅ $tool установлен"
-            fi
-          done
+# ---------- Установка выбранных тулзов ----------
+for item in $CHOICES; do
+  TOOL=$(echo "$item" | awk '{print $3}')
+  for cmd in "${INSTALL_COMMANDS[@]}"; do
+    if [[ "$cmd" == "$TOOL"* ]]; then
+      COMD=$(echo "$cmd" | cut -d '=' -f2-)
+      gum spin --title "Устанавливаю $TOOL..." -- bash -c "$COMD"
+      success "$TOOL установлен"
+    fi
+  done
+done
 
-          if [[ "$FAIL" -ne 0 ]]; then
-            echo "❌ Некоторые CLI-инструменты не установлены"
-            exit 1
-          fi
-
-      - name: Verify GUI tools via CLI
-        run: |
-          GUI_CLI_TOOLS=(
-            docker
-            gcloud
-            code
-            iterm2
-            tailscale
-            ngrok
-          )
-
-          echo "🔍 Проверка GUI-инструментов по CLI..."
-          FAIL=0
-          for tool in "${GUI_CLI_TOOLS[@]}"; do
-            if ! command -v "$tool" &>/dev/null; then
-              echo "❌ $tool НЕ ДОСТУПЕН"
-              FAIL=1
-            else
-              echo "✅ $tool доступен"
-            fi
-          done
-
-          if [[ "$FAIL" -ne 0 ]]; then
-            echo "❌ Некоторые GUI-инструменты не установлены или не работают"
-            exit 1
-          fi
-
-      - name: Success
-        if: success()
-        run: echo "🎉 Все DevOps-инструменты (CLI + GUI) успешно установлены и проверены!"
+# ---------- Финал ----------
+echo -e "\n${GREEN}Установка завершена! Перезапусти терминал или выполни: source ~/.zshrc${NC}"
