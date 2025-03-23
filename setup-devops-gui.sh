@@ -62,8 +62,13 @@ for item in $CHOICES; do
     TOOL_NAME=$(echo "$cmd" | cut -d ':' -f1)
     TOOL_CMD=$(echo "$cmd" | cut -d ':' -f2-)
     if [[ "$TOOL" == "$TOOL_NAME" ]]; then
-      gum spin --title "Устанавливаю $TOOL..." -- bash -c "$TOOL_CMD"
-      success "$TOOL установлен"
+      # Проверка, установлен ли инструмент через brew
+      if brew list --cask "$TOOL_NAME" &>/dev/null; then
+        info "$TOOL уже установлен, пропускаю установку."
+      else
+        gum spin --title "Устанавливаю $TOOL..." -- bash -c "$TOOL_CMD"
+        success "$TOOL установлен"
+      fi
     fi
   done
 done
