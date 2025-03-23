@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Homebrew, pipx and gum
+      - name: Install Homebrew, pipx, and gum
         run: |
           if ! command -v brew &>/dev/null; then
             NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -28,11 +28,10 @@ jobs:
 
       - name: Configure shell environment
         run: |
+          # Ensure Homebrew is available in PATH
           eval "$(/opt/homebrew/bin/brew shellenv)"
           export PATH="$HOME/.local/bin:$PATH"
           echo "🔧 PATH = $PATH"
-          echo "🔧 Проверяем установленные пакеты через Homebrew"
-          brew list
 
       - name: Run setup-devops-gui.sh with --all
         shell: bash
