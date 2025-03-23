@@ -18,20 +18,24 @@ jobs:
           if ! command -v brew &>/dev/null; then
             NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
           fi
+          brew update
           brew install pipx
           pipx ensurepath
           brew install charmbracelet/tap/gum
 
-      - name: Configure shell environment
+      - name: Configure shell environment (brew + pipx)
         run: |
-          eval "$(/opt/homebrew/bin/brew shellenv)" >> ~/.bash_profile
+          echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.bash_profile
           eval "$(/opt/homebrew/bin/brew shellenv)"
           export PATH="$HOME/.local/bin:$PATH"
+          echo "🔧 PATH = $PATH"
+          which brew
+          which pipx
 
-      - name: Run setup-devops-cli.sh with --all
+      - name: Run setup-devops-cli.sh with --all and debug
         run: |
           chmod +x setup-devops-cli.sh
-          ./setup-devops-cli.sh --all
+          ./setup-devops-cli.sh --all --debug
 
       - name: Verify installed CLI tools
         shell: bash
