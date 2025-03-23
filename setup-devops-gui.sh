@@ -47,32 +47,45 @@ declare -A INSTALL_COMMANDS=(
   [btop]="brew install btop"
 )
 
-# ---------- Список с категориями ----------
-CHOICES=$(gum choose --no-limit --height=40 --header="Выбери инструменты для установки (CI-friendly):" <<EOF
-🛠️ [CORE] git
-🛠️ [CORE] zsh
-🛠️ [CORE] fzf
-🛠️ [CORE] jq
-🛠️ [CORE] bat
-🛠️ [CORE] tree
-☸️ [KUBERNETES] kubectl
-☸️ [KUBERNETES] helm
-☸️ [KUBERNETES] k9s
-📦 [INFRA] terraform
-☁️ [CLOUD] awscli
-☁️ [CLOUD] az
-☁️ [CLOUD] gh
-☁️ [CLOUD] glab
-⚙️ [DEVTOOLS] pipx
-⚙️ [DEVTOOLS] ansible
-⚡ [EXTRAS] act
-🔧 [UTILITIES] direnv
-🔧 [UTILITIES] zoxide
-🔧 [UTILITIES] httpie
-🔧 [UTILITIES] cheat
-🔧 [UTILITIES] btop
-EOF
+# ---------- Аргументы ----------
+ALL=false
+for arg in "$@"; do
+  [[ "$arg" == "--all" ]] && ALL=true
+  [[ "$arg" == "-a" ]] && ALL=true
+done
+
+# ---------- Список тулзов ----------
+TOOL_LIST=(
+  "🛠️ [CORE] git"
+  "🛠️ [CORE] zsh"
+  "🛠️ [CORE] fzf"
+  "🛠️ [CORE] jq"
+  "🛠️ [CORE] bat"
+  "🛠️ [CORE] tree"
+  "☸️ [KUBERNETES] kubectl"
+  "☸️ [KUBERNETES] helm"
+  "☸️ [KUBERNETES] k9s"
+  "📦 [INFRA] terraform"
+  "☁️ [CLOUD] awscli"
+  "☁️ [CLOUD] az"
+  "☁️ [CLOUD] gh"
+  "☁️ [CLOUD] glab"
+  "⚙️ [DEVTOOLS] pipx"
+  "⚙️ [DEVTOOLS] ansible"
+  "⚡ [EXTRAS] act"
+  "🔧 [UTILITIES] direnv"
+  "🔧 [UTILITIES] zoxide"
+  "🔧 [UTILITIES] httpie"
+  "🔧 [UTILITIES] cheat"
+  "🔧 [UTILITIES] btop"
 )
+
+# ---------- Выбор инструментов ----------
+if $ALL; then
+  CHOICES="${TOOL_LIST[@]}"
+else
+  CHOICES=$(gum choose --no-limit --height=40 --header="Выбери инструменты для установки (CI-friendly):" <<< "${TOOL_LIST[*]}")
+fi
 
 # ---------- Установка выбранных тулзов ----------
 for item in $CHOICES; do
