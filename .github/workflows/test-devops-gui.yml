@@ -8,6 +8,9 @@ on:
 jobs:
   test-macos:
     runs-on: macos-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout repository
@@ -35,7 +38,6 @@ jobs:
           ./setup-devops-gui.sh --all
 
       - name: Verify installed GUI tools
-        shell: bash
         run: |
           GUI_PATHS=(
             "/Applications/Docker.app"
