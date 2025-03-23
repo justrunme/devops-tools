@@ -26,7 +26,7 @@ jobs:
           pipx ensurepath
           brew install charmbracelet/tap/gum
 
-      - name: Configure shell environment
+      - name: Configure shell environment (brew + pipx)
         run: |
           echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.bash_profile
           eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -36,7 +36,7 @@ jobs:
       - name: Run setup-devops.sh with --all
         run: |
           chmod +x setup-devops.sh
-          ./setup-devops.sh --all --debug
+          bash setup-devops.sh --all --debug
 
       - name: Verify CLI tools installed
         run: |
@@ -63,9 +63,9 @@ jobs:
             exit 1
           fi
 
-      - name: Verify GUI apps installed (via CLI)
+      - name: Verify GUI tools via CLI access
         run: |
-          GUI_CLI_TOOLS=(
+          GUI_TOOLS_CLI=(
             docker
             gcloud
             code
@@ -76,12 +76,12 @@ jobs:
 
           echo "🔍 Проверка GUI-инструментов по доступности CLI-команд..."
           FAIL=0
-          for cli in "${GUI_CLI_TOOLS[@]}"; do
-            if ! command -v "$cli" &>/dev/null; then
-              echo "❌ $cli (GUI) НЕ ДОСТУПЕН через CLI"
+          for tool in "${GUI_TOOLS_CLI[@]}"; do
+            if ! command -v "$tool" &>/dev/null; then
+              echo "❌ $tool (GUI) НЕ ДОСТУПЕН через CLI"
               FAIL=1
             else
-              echo "✅ $cli (GUI) доступен через CLI"
+              echo "✅ $tool (GUI) доступен через CLI"
             fi
           done
 
