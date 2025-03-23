@@ -52,6 +52,7 @@ jobs:
           echo "🔍 Проверка GUI-инструментов по CLI..."
           FAIL=0
           for tool in "${GUI_CLI_TOOLS[@]}"; do
+            echo "🔧 Проверка: $tool"
             if ! command -v "$tool" &>/dev/null; then
               echo "❌ $tool НЕ ДОСТУПЕН"
               FAIL=1
