@@ -1,4 +1,4 @@
-name: Test DevOps CLI Installer
+name: Test DevOps GUI Installer
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  test-devops-cli:
+  test-devops-gui:
     runs-on: macos-latest
     defaults:
       run:
@@ -32,62 +32,40 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           echo "🔧 PATH = $PATH"
 
-      - name: Run setup-devops-cli.sh with --all
+      - name: Run setup-devops-gui.sh with --all
         shell: bash
         run: |
-          chmod +x setup-devops-cli.sh
-          bash setup-devops-cli.sh --all
+          chmod +x setup-devops-gui.sh
+          bash setup-devops-gui.sh --all
 
-      - name: Check CLI Tools Installation
+      - name: Check GUI Tools Installation
         run: |
-          CLI_TOOLS=(
-            git
-            zsh
-            fzf
-            jq
-            bat
-            tree
-            kubectl
-            helm
-            k9s
-            terraform
-            awscli
-            az
-            gh
-            glab
-            pipx
-            ansible
-            act
-            direnv
-            zoxide
-            httpie
-            cheat
-            btop
+          GUI_CLI_TOOLS=(
+            docker
+            gcloud
+            code
+            iterm2
+            tailscale
+            ngrok
           )
 
-          echo "🔍 Проверка CLI инструментов..."
+          echo "🔍 Проверка GUI инструментов..."
           FAIL=0
-          for tool in "${CLI_TOOLS[@]}"; do
+          for tool in "${GUI_CLI_TOOLS[@]}"; do
+            # Проверка доступности через команду `command -v`
             if ! command -v "$tool" &>/dev/null; then
               echo "❌ $tool НЕ ДОСТУПЕН"
               FAIL=1
             else
               echo "✅ $tool доступен"
-              # Проверим, установлен ли инструмент через brew
-              if brew list --formula | grep -q "^$tool$"; then
-                echo "✅ $tool установлен через brew"
-              else
-                echo "❌ $tool не найден в brew list"
-                FAIL=1
-              fi
             fi
           done
 
           if [[ "$FAIL" -ne 0 ]]; then
-            echo "❌ Некоторые инструменты не установлены"
+            echo "❌ Некоторые GUI инструменты не установлены или не работают"
             exit 1
           fi
 
       - name: Success
         if: success()
-        run: echo "🎉 Все инструменты успешно установлены и проверены!"
+        run: echo "🎉 Все GUI-инструменты успешно установлены и проверены!"
