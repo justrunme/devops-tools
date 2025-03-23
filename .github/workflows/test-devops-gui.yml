@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           chmod +x setup-devops-gui.sh
-          bash setup-devops-gui.sh --all || { echo "Ошибка при установке GUI инструментов"; exit 1; }
+          bash setup-devops-gui.sh --all
 
       - name: Verify GUI tools via CLI
         run: |
