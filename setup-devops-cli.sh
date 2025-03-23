@@ -21,32 +21,6 @@ if ! command -v pipx &>/dev/null; then
   pipx ensurepath
 fi
 
-# ---------- Маппинг тулзов на команды (CI-friendly only) ----------
-declare -A INSTALL_COMMANDS=(
-  [git]="brew install git"
-  [zsh]="brew install zsh"
-  [fzf]="brew install fzf"
-  [jq]="brew install jq"
-  [bat]="brew install bat"
-  [tree]="brew install tree"
-  [kubectl]="brew install kubectl"
-  [helm]="brew install helm"
-  [k9s]="brew install k9s"
-  [terraform]="brew install terraform"
-  [awscli]="pipx install awscli"
-  [az]="brew install azure-cli"
-  [gh]="brew install gh"
-  [glab]="brew install glab"
-  [pipx]="brew install pipx && pipx ensurepath"
-  [ansible]="pipx install ansible"
-  [act]="brew install act"
-  [direnv]="brew install direnv"
-  [zoxide]="brew install zoxide"
-  [httpie]="brew install httpie"
-  [cheat]="brew install cheat"
-  [btop]="brew install btop"
-)
-
 # ---------- Аргументы ----------
 ALL=false
 for arg in "$@"; do
@@ -56,47 +30,49 @@ done
 
 # ---------- Список тулзов ----------
 TOOL_LIST=(
-  "🛠️ [CORE] git"
-  "🛠️ [CORE] zsh"
-  "🛠️ [CORE] fzf"
-  "🛠️ [CORE] jq"
-  "🛠️ [CORE] bat"
-  "🛠️ [CORE] tree"
-  "☸️ [KUBERNETES] kubectl"
-  "☸️ [KUBERNETES] helm"
-  "☸️ [KUBERNETES] k9s"
-  "📦 [INFRA] terraform"
-  "☁️ [CLOUD] awscli"
-  "☁️ [CLOUD] az"
-  "☁️ [CLOUD] gh"
-  "☁️ [CLOUD] glab"
-  "⚙️ [DEVTOOLS] pipx"
-  "⚙️ [DEVTOOLS] ansible"
-  "⚡ [EXTRAS] act"
-  "🔧 [UTILITIES] direnv"
-  "🔧 [UTILITIES] zoxide"
-  "🔧 [UTILITIES] httpie"
-  "🔧 [UTILITIES] cheat"
-  "🔧 [UTILITIES] btop"
+  "git"
+  "zsh"
+  "fzf"
+  "jq"
+  "bat"
+  "tree"
+  "kubectl"
+  "helm"
+  "k9s"
+  "terraform"
+  "awscli"
+  "az"
+  "gh"
+  "glab"
+  "pipx"
+  "ansible"
+  "act"
+  "direnv"
+  "zoxide"
+  "httpie"
+  "cheat"
+  "btop"
 )
 
 # ---------- Выбор инструментов ----------
 if $ALL; then
-  CHOICES="${TOOL_LIST[@]}"
+  CHOICES=("${TOOL_LIST[@]}")
 else
-  CHOICES=$(gum choose --no-limit --height=40 --header="Выбери инструменты для установки (CI-friendly):" <<< "${TOOL_LIST[*]}")
+  CHOICES=$(gum choose --no-limit --height=30 --header="Выбери CLI-инструменты для установки:" "${TOOL_LIST[@]}")
 fi
 
 # ---------- Установка выбранных тулзов ----------
-for item in $CHOICES; do
-  TOOL=$(echo "$item" | awk '{print $3}')
-  CMD="${INSTALL_COMMANDS[$TOOL]}"
-  if [[ -n "$CMD" ]]; then
-    gum spin --title "Устанавливаю $TOOL..." -- bash -c "$CMD"
-    success "$TOOL установлен"
-  else
-    info "$TOOL не найден в INSTALL_COMMANDS — пропущен"
-  fi
+for TOOL in $CHOICES; do
+  case "$TOOL" in
+    awscli)      CMD="pipx install awscli" ;;
+    pipx)        CMD="brew install pipx && pipx ensurepath" ;;
+    ansible)     CMD="pipx install ansible" ;;
+    docker-compose) CMD="pipx install docker-compose" ;;
+    *)           CMD="brew install $TOOL" ;;
+  esac
+
+  gum spin --title "Устанавливаю $TOOL..." -- bash -c "$CMD"
+  success "$TOOL установлен"
 done
 
 # ---------- Финал ----------
