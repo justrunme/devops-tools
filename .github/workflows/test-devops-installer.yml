@@ -13,23 +13,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Ensure Homebrew is installed
+      - name: Install Homebrew, pipx and gum
         run: |
           if ! command -v brew &>/dev/null; then
-            echo "Installing Homebrew..."
             NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          else
-            echo "✅ Homebrew already installed"
           fi
-
-      - name: Install pipx and gum
-        run: |
           brew install pipx
           pipx ensurepath
           brew install charmbracelet/tap/gum
 
-      - name: Run inline DevOps Installer (test mode)
-        shell: bash
+      - name: Run DevOps Installer inline (Bash guaranteed)
+        shell: bash {0}
         run: |
           declare -A INSTALL_COMMANDS=(
             [git]="brew install git"
@@ -64,9 +58,10 @@ jobs:
             [btop]="brew install btop"
           )
 
-          for tool in \"\${!INSTALL_COMMANDS[@]}\"; do
-            echo \"🔧 Installing: \$tool\"
-            eval \"\${INSTALL_COMMANDS[\$tool]}\" || echo \"⚠️ Failed to install \$tool\"
+          echo "🧰 Устанавливаем инструменты..."
+          for tool in "${!INSTALL_COMMANDS[@]}"; do
+            echo "▶️ $tool"
+            eval "${INSTALL_COMMANDS[$tool]}" || echo "⚠️ $tool не установился"
           done
 
       - name: Verify installed tools
