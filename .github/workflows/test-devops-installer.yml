@@ -22,57 +22,20 @@ jobs:
           pipx ensurepath
           brew install charmbracelet/tap/gum
 
-      - name: Run DevOps Installer inline (Bash guaranteed)
-        shell: bash {0}
+      - name: Run DevOps Installer with --all
+        shell: bash
         run: |
-          declare -A INSTALL_COMMANDS=(
-            [git]="brew install git"
-            [zsh]="brew install zsh"
-            [fzf]="brew install fzf"
-            [jq]="brew install jq"
-            [bat]="brew install bat"
-            [tree]="brew install tree"
-            [docker]="brew install --cask docker"
-            [docker-compose]="pipx install docker-compose"
-            [kubectl]="brew install kubectl"
-            [helm]="brew install helm"
-            [k9s]="brew install k9s"
-            [minikube]="brew install minikube"
-            [terraform]="brew install terraform"
-            [aws]="pipx install awscli"
-            [gcloud]="brew install --cask google-cloud-sdk"
-            [az]="brew install azure-cli"
-            [gh]="brew install gh"
-            [glab]="brew install glab"
-            [pipx]="brew install pipx && pipx ensurepath"
-            [ansible]="pipx install ansible"
-            [visual-studio-code]="brew install --cask visual-studio-code"
-            [iterm2]="brew install --cask iterm2"
-            [act]="brew install act"
-            [tailscale]="brew install --cask tailscale"
-            [ngrok]="brew install --cask ngrok"
-            [direnv]="brew install direnv"
-            [zoxide]="brew install zoxide"
-            [httpie]="brew install httpie"
-            [cheat]="brew install cheat"
-            [btop]="brew install btop"
-          )
-
-          echo "🧰 Устанавливаем инструменты..."
-          for tool in "${!INSTALL_COMMANDS[@]}"; do
-            echo "▶️ $tool"
-            eval "${INSTALL_COMMANDS[$tool]}" || echo "⚠️ $tool не установился"
-          done
+          chmod +x setup-devops-gui.sh
+          ./setup-devops-gui.sh --all
 
       - name: Verify installed tools
         shell: bash
         run: |
           TOOLS=(
-            git zsh fzf jq bat tree docker docker-compose
-            kubectl helm k9s minikube terraform
-            aws gcloud az gh glab pipx ansible
-            visual-studio-code iterm2 act tailscale ngrok
-            direnv zoxide httpie cheat btop
+            git zsh fzf jq bat tree
+            kubectl helm k9s terraform
+            aws az gh glab pipx ansible
+            act direnv zoxide httpie cheat btop
           )
 
           echo "🔍 Проверка установленных инструментов..."
