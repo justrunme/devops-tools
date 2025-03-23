@@ -26,6 +26,13 @@ jobs:
           pipx ensurepath
           brew install charmbracelet/tap/gum
 
+      - name: Configure shell environment
+        run: |
+          echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.bash_profile
+          eval "$(/opt/homebrew/bin/brew shellenv)"
+          export PATH="$HOME/.local/bin:$PATH"
+          echo "🔧 PATH = $PATH"
+
       - name: Run setup-devops.sh with --all
         run: |
           chmod +x setup-devops.sh
@@ -56,30 +63,30 @@ jobs:
             exit 1
           fi
 
-      - name: Verify GUI apps installed
+      - name: Verify GUI apps installed (via CLI)
         run: |
-          GUI_PATHS=(
-            "/Applications/Docker.app"
-            "/Applications/Google Cloud SDK"
-            "/Applications/Visual Studio Code.app"
-            "/Applications/iTerm.app"
-            "/Applications/Tailscale.app"
-            "/Applications/Ngrok.app"
+          GUI_CLI_TOOLS=(
+            docker
+            gcloud
+            code
+            iterm2
+            tailscale
+            ngrok
           )
 
-          echo "🔍 Проверка GUI-приложений..."
+          echo "🔍 Проверка GUI-инструментов по доступности CLI-команд..."
           FAIL=0
-          for path in "${GUI_PATHS[@]}"; do
-            if [ ! -e "$path" ]; then
-              echo "❌ Не найдено: $path"
+          for cli in "${GUI_CLI_TOOLS[@]}"; do
+            if ! command -v "$cli" &>/dev/null; then
+              echo "❌ $cli (GUI) НЕ ДОСТУПЕН через CLI"
               FAIL=1
             else
-              echo "✅ Найдено: $path"
+              echo "✅ $cli (GUI) доступен через CLI"
             fi
           done
 
           if [[ "$FAIL" -ne 0 ]]; then
-            echo "❌ Некоторые GUI-инструменты не установлены"
+            echo "❌ Некоторые GUI-инструменты не установлены или недоступны через CLI"
             exit 1
           fi
 
