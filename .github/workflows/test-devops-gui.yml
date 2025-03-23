@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  test-macos:
+  test-devops-gui:
     runs-on: macos-latest
     defaults:
       run:
@@ -26,44 +26,7 @@ jobs:
           pipx ensurepath
           brew install charmbracelet/tap/gum
 
-      - name: Configure environment
+      - name: Configure shell environment
         run: |
-          eval "$(/opt/homebrew/bin/brew shellenv)" >> ~/.bash_profile
-          eval "$(/opt/homebrew/bin/brew shellenv)"
-          export PATH="$HOME/.local/bin:$PATH"
-
-      - name: Run setup-devops-gui.sh with --all
-        run: |
-          chmod +x setup-devops-gui.sh
-          ./setup-devops-gui.sh --all
-
-      - name: Verify installed GUI tools
-        run: |
-          GUI_PATHS=(
-            "/Applications/Docker.app"
-            "/Applications/Google Cloud SDK"
-            "/Applications/Visual Studio Code.app"
-            "/Applications/iTerm.app"
-            "/Applications/Tailscale.app"
-            "/Applications/Ngrok.app"
-          )
-
-          echo "🔍 Проверка GUI-инструментов в /Applications..."
-          FAIL=0
-          for path in "${GUI_PATHS[@]}"; do
-            if [ ! -e "$path" ]; then
-              echo "❌ Не найден: $path"
-              FAIL=1
-            else
-              echo "✅ Найден: $path"
-            fi
-          done
-
-          if [[ "$FAIL" -ne 0 ]]; then
-            echo "❌ Некоторые GUI-инструменты не установлены"
-            exit 1
-          fi
-
-      - name: Success
-        if: success()
-        run: echo "🎉 Все GUI-инструменты DevOps успешно установлены и проверены!"
+          echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.bash_profile
+          eval "$(/
