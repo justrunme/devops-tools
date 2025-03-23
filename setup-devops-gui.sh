@@ -22,13 +22,13 @@ if ! command -v pipx &>/dev/null; then
 fi
 
 # ---------- GUI-инструменты ----------
-declare -A INSTALL_GUI_COMMANDS=(
-  [Docker Desktop]="brew install --cask docker"
-  [Google Cloud SDK]="brew install --cask google-cloud-sdk"
-  [Visual Studio Code]="brew install --cask visual-studio-code"
-  [iTerm2 Terminal]="brew install --cask iterm2"
-  [Tailscale VPN]="brew install --cask tailscale"
-  [Ngrok Tunnel]="brew install --cask ngrok"
+INSTALL_GUI_COMMANDS=(
+  "Docker Desktop:brew install --cask docker"
+  "Google Cloud SDK:brew install --cask google-cloud-sdk"
+  "Visual Studio Code:brew install --cask visual-studio-code"
+  "iTerm2 Terminal:brew install --cask iterm2"
+  "Tailscale VPN:brew install --cask tailscale"
+  "Ngrok Tunnel:brew install --cask ngrok"
 )
 
 # ---------- Аргументы ----------
@@ -58,13 +58,14 @@ fi
 # ---------- Установка выбранных тулзов ----------
 for item in $CHOICES; do
   TOOL=$(echo "$item" | cut -d ' ' -f2-)
-  CMD="${INSTALL_GUI_COMMANDS[$TOOL]}"
-  if [[ -n "$CMD" ]]; then
-    gum spin --title "Устанавливаю $TOOL..." -- bash -c "$CMD"
-    success "$TOOL установлен"
-  else
-    info "$TOOL не найден в INSTALL_GUI_COMMANDS — пропущен"
-  fi
+  for cmd in "${INSTALL_GUI_COMMANDS[@]}"; do
+    TOOL_NAME=$(echo "$cmd" | cut -d ':' -f1)
+    TOOL_CMD=$(echo "$cmd" | cut -d ':' -f2-)
+    if [[ "$TOOL" == "$TOOL_NAME" ]]; then
+      gum spin --title "Устанавливаю $TOOL..." -- bash -c "$TOOL_CMD"
+      success "$TOOL установлен"
+    fi
+  done
 done
 
 # ---------- Финал ----------
