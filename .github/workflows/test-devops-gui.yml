@@ -44,7 +44,7 @@ jobs:
           chmod +x setup-devops-gui.sh
           bash setup-devops-gui.sh --all
 
-      - name: Ensure GUI tools are available
+      - name: Check GUI Tools Installation Directories
         run: |
           # Add directories where brew cask installs apps
           GUI_TOOL_PATHS=(
