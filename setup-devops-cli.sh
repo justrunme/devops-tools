@@ -70,7 +70,7 @@ for TOOL in "${CHOICES[@]}"; do
   case "$TOOL" in
     awscli)  CMD="pipx install awscli" ;;
     pipx)    CMD="brew install pipx && pipx ensurepath" ;;
-    ansible) CMD="pipx install ansible" ;;
+    ansible) CMD="pipx install ansible --include-deps" ;;
     docker-compose) CMD="pipx install docker-compose" ;;
     *)       CMD="brew install $TOOL" ;;
   esac
