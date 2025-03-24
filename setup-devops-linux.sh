@@ -58,13 +58,11 @@ if ! command -v gum &>/dev/null; then
   info "Устанавливаю gum..."
   mkdir -p "$HOME/.local/bin"
 
-  # Статическая проверенная версия
-  GUM_VERSION="v0.12.0"
-  GUM_TAR="gum_${GUM_VERSION}_linux_amd64.tar.gz"
-  GUM_URL="https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/${GUM_TAR}"
+  GUM_VERSION="0.12.0"
+  GUM_URL="https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/gum_${GUM_VERSION}_Linux_x86_64.tar.gz"
 
   wget -q "$GUM_URL" -O gum.tar.gz || {
-    error "Не удалось скачать gum с $GUM_URL"
+    error "❌ Не удалось скачать gum с $GUM_URL"
     exit 1
   }
 
