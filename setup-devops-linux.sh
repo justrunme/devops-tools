@@ -48,33 +48,28 @@ install_pkg() {
   esac
 }
 
-# ---------- Установка python3, pipx, git, curl, wget ----------
-install_pkg python3 python3-pip curl wget git unzip
-pip install --user pipx
-~/.local/bin/pipx ensurepath || true
+# ---------- Установка pipx ----------
+if ! command -v pipx &>/dev/null; then
+  info "Устанавливаю pipx..."
+  python3 -m pip install --user pipx
+  python3 -m pipx ensurepath
+  export PATH="$HOME/.local/bin:$PATH"
+  hash -r
+fi
 
 # ---------- Установка gum ----------
 if ! command -v gum &>/dev/null; then
   info "Устанавливаю gum..."
+  GUM_VERSION="0.14.1"
+  GUM_URL="https://github.com/charmbracelet/gum/releases/download/v${GUM_VERSION}/gum_${GUM_VERSION}_Linux_x86_64.tar.gz"
 
-  if command -v brew &>/dev/null; then
-    brew install charmbracelet/tap/gum
-  else
-    GUM_URL=$(curl -s https://api.github.com/repos/charmbracelet/gum/releases/latest \
-      | grep "browser_download_url" \
-      | grep "linux_amd64.tar.gz" \
-      | cut -d '"' -f 4 | head -n 1)
-
-    if [[ -z "$GUM_URL" ]]; then
-      error "Не удалось получить URL для gum."
-    fi
-
-    wget "$GUM_URL" -O gum.tar.gz || error "Ошибка скачивания gum."
-    tar -xzf gum.tar.gz
-    sudo mv gum /usr/local/bin/gum
-    chmod +x /usr/local/bin/gum
-    rm -f gum.tar.gz LICENSE README.md
+  if curl -fsSL "$GUM_URL" -o gum.tar.gz; then
+    sudo tar -xzf gum.tar.gz -C /usr/local/bin gum
+    rm gum.tar.gz
     success "gum установлен"
+  else
+    error "Не удалось скачать gum с $GUM_URL"
+    exit 1
   fi
 fi
 
