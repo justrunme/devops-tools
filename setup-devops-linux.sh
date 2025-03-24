@@ -78,11 +78,15 @@ sudo flatpak remote-add --if-not-exists --system flathub https://flathub.org/rep
 
 # ---------- GUI инструменты (Flatpak для user) ----------
 GUI_TOOLS=(
-  "VSCode:sudo flatpak install -y --system flathub com.visualstudio.code"
-  "Teleport:curl https://goteleport.com/static/install.sh | bash"
-  "PgAdmin 4:sudo flatpak install -y --system flathub io.pgadmin.pgadmin4"
-  "DB Browser for SQLite:sudo flatpak install -y --system flathub io.github.sqlitebrowser.sqlitebrowser"
-  "Lens (K8s GUI):sudo flatpak install -y --system flathub dev.k8slens.OpenLens"
+  "Docker Engine:sudo apt-get install -y docker.io"
+  "Google Cloud SDK:sudo apt-get install -y google-cloud-sdk"
+  "Visual Studio Code:flatpak install -y flathub com.visualstudio.code"
+  "Tailscale VPN:sudo apt-get install -y tailscale"
+  "Ngrok Tunnel:sudo snap install ngrok"
+  "Teleport 17.3.4:curl -LO https://cdn.teleport.dev/teleport_17.3.4_amd64.deb && sudo dpkg -i teleport_17.3.4_amd64.deb && rm teleport_17.3.4_amd64.deb"
+  "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
+  "DB Browser for SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
+  "Lens (K8s GUI):flatpak install -y flathub dev.k8slens.OpenLens"
 )
 
 # ---------- CLI инструменты ----------
