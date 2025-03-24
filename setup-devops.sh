@@ -37,16 +37,15 @@ fi
 
 # ---------- GUI инструменты ----------
 GUI_TOOLS=(
-  "Docker Desktop:brew install --cask docker"
-  "Google Cloud SDK:brew install --cask google-cloud-sdk"
-  "Visual Studio Code:brew install --cask visual-studio-code"
-  "iTerm2 Terminal:brew install --cask iterm2"
-  "Tailscale VPN:brew install --cask tailscale"
-  "Ngrok Tunnel:brew install --cask ngrok"
-  "Teleport:brew install --cask teleport"
-  "PgAdmin 4:brew install --cask pgadmin4"
-  "DB Browser for SQLite:brew install --cask db-browser-for-sqlite"
-  "Lens K8s GUI:brew install --cask lens"
+  "Docker Desktop (через deb):curl -fsSL https://desktop.docker.com/linux/main/amd64/docker-desktop-4.28.0-amd64.deb -o docker.deb && sudo dpkg -i docker.deb || true && rm docker.deb"
+  "Google Cloud SDK:install_pkg google-cloud-sdk"
+  "Visual Studio Code (Flatpak):flatpak install -y flathub com.visualstudio.code"
+  "PgAdmin 4 (Flatpak):flatpak install -y flathub io.pgadmin.pgadmin4"
+  "DB Browser for SQLite (Flatpak):flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
+  "Lens (Flatpak):flatpak install -y flathub dev.k8slens.OpenLens"
+  "Ngrok (deb):curl -fsSL https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip && unzip -o ngrok.zip -d ~/bin && chmod +x ~/bin/ngrok && rm ngrok.zip"
+  "Tailscale VPN (deb):curl -fsSL https://pkgs.tailscale.com/stable/tailscale_1.66.4_amd64.deb -o tailscale.deb && sudo dpkg -i tailscale.deb && rm tailscale.deb"
+  "Teleport 17.3.4 (deb):curl -fsSL https://cdn.teleport.dev/teleport_17.3.4_amd64.deb -o teleport.deb && sudo dpkg -i teleport.deb && rm teleport.deb"
 )
 
 # ---------- CLI инструменты ----------
