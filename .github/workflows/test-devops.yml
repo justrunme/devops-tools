@@ -1,4 +1,4 @@
-name: Test Full DevOps Installer (GUI + CLI)
+name: Test Full DevOps Installer (GUI + CLI + Configs)
 
 on:
   push:
@@ -82,6 +82,52 @@ jobs:
             fi
           done
 
+      - name: Проверка конфигурации Oh My Zsh
+        run: |
+          echo "🧪 Проверяю наличие ~/.zshrc и темы Powerlevel10k..."
+          if [[ -f ~/.zshrc ]]; then
+            echo "✅ ~/.zshrc найден"
+          else
+            echo "❌ ~/.zshrc отсутствует"
+            exit 1
+          fi
+
+          if grep -q "powerlevel10k/powerlevel10k" ~/.zshrc; then
+            echo "✅ Тема Powerlevel10k настроена"
+          else
+            echo "❌ Тема Powerlevel10k НЕ настроена"
+            exit 1
+          fi
+
+          echo "📦 Проверка плагинов Oh My Zsh..."
+          PLUGINS=(zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-z)
+          for p in "${PLUGINS[@]}"; do
+            if [[ -d "$HOME/.oh-my-zsh/custom/plugins/$p" ]]; then
+              echo "✅ Плагин $p установлен"
+            else
+              echo "❌ Плагин $p НЕ установлен"
+              exit 1
+            fi
+          done
+
+      - name: Проверка Neovim конфигурации и Lazy.nvim
+        run: |
+          echo "🧪 Проверка Neovim и Lazy.nvim..."
+          if ! command -v nvim &>/dev/null; then
+            echo "❌ Neovim не найден!"
+            exit 1
+          fi
+
+          if [[ -f ~/.config/nvim/init.lua ]]; then
+            echo "✅ init.lua найден"
+          else
+            echo "❌ init.lua отсутствует"
+            exit 1
+          fi
+
+          echo "⚡️ Запускаю nvim +Lazy (headless)..."
+          nvim --headless "+Lazy! sync" +qa
+
       - name: Успех!
         if: success()
-        run: echo "🎉 Полная установка DevOps-тулзов (CLI + GUI) прошла успешно!"
+        run: echo "🎉 Установка и конфигурация DevOps-тулзов, Oh My Zsh и Neovim прошла успешно!"
