@@ -42,6 +42,18 @@ GUI_TOOLS=(
   "Visual Studio Code:flatpak install -y flathub com.visualstudio.code"
   "Tailscale VPN:sudo apt-get install -y tailscale"
   "Ngrok Tunnel:sudo snap install ngrok"
+  "Teleport 17.3.4:curl -LO https://github.com/gravitational/teleport/releases/download/v17.3.4/teleport_17.3.4_amd64.deb && sudo dpkg -i teleport_17.3.4_amd64.deb && rm teleport_17.3.4_amd64.deb"
+  "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
+  "DB Browser for SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
+  "Lens (K8s GUI):flatpak install -y flathub dev.k8slens.OpenLens"
+)
+
+GUI_TOOLS=(
+  "Docker Engine:sudo apt-get install -y docker.io"
+  "Google Cloud SDK:sudo apt-get install -y google-cloud-sdk"
+  "Visual Studio Code:flatpak install -y flathub com.visualstudio.code"
+  "Tailscale VPN:sudo apt-get install -y tailscale"
+  "Ngrok Tunnel:sudo snap install ngrok"
   "Teleport 17.3.4:curl https://cdn.teleport.dev/install.sh | bash -s 17.3.4"
   "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
   "DB Browser for SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
