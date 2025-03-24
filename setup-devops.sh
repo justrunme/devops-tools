@@ -37,15 +37,15 @@ fi
 
 # ---------- GUI инструменты ----------
 GUI_TOOLS=(
-  "Docker Desktop (AppImage):echo 'TODO: Docker AppImage/manual install'"
-  "Google Cloud SDK:flatpak install -y flathub com.google.CloudSdk"
+  "Docker Desktop:sudo apt-get install -y docker.io"
+  "Google Cloud SDK:sudo apt-get install -y google-cloud-sdk"
   "Visual Studio Code:flatpak install -y flathub com.visualstudio.code"
-  "Tailscale VPN:flatpak install -y flathub com.tailscale.Tailscale"
-  "Ngrok Tunnel:flatpak install -y flathub dev.ngrok.Ngrok"
+  "Tailscale VPN:sudo apt-get install -y tailscale"
+  "Ngrok Tunnel:sudo snap install ngrok"
   "Teleport 17.3.4:curl -fsSL https://cdn.teleport.dev/teleport_17.3.4_amd64.deb -o teleport.deb && sudo dpkg -i teleport.deb && rm teleport.deb"
   "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
   "DB Browser for SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
-  "Lens K8s GUI:flatpak install -y flathub dev.k8slens.OpenLens"
+  "Lens (K8s GUI):flatpak install -y flathub dev.k8slens.OpenLens"
 )
 
 # ---------- CLI инструменты ----------
