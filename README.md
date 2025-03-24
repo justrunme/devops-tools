@@ -113,67 +113,69 @@
 ---
 
 ## ⚙️ Установка
+Отлично! Вот переработанный и **красиво структурированный** блок `README.md` с оформлением, списками, и улучшенной читаемостью для пользователей:
+
+---
+
+## ⚙️ Установка
 
 ```bash
 git clone https://github.com/justrunme/devops-tools.git
 cd devops-tools
 chmod +x setup-devops.sh
 ./setup-devops.sh --all
+```
 
-Аргументы:
+### Аргументы запуска:
 
---all: установить всё (CLI + GUI)
-
---cli: только CLI-инструменты
-
---gui: только GUI-инструменты
-
-без аргументов: откроется выбор через gum
-
-
+- `--all`: установить всё (CLI + GUI + конфиги)
+- `--cli`: установить только CLI-инструменты
+- `--gui`: установить только GUI-инструменты
+- Без аргументов: интерактивный выбор инструментов через `gum`
 
 ---
 
-☁️ Устанавливаемые CLI-инструменты
+## ☁️ Устанавливаемые CLI-инструменты
 
+Включают DevOps-инструменты, Cloud CLI, IaC, Git, сетевые утилиты и многое другое:
 
----
-
-🖥️ Устанавливаемые GUI-инструменты
-
-Docker Desktop
-
-Google Cloud SDK
-
-Visual Studio Code
-
-iTerm2 Terminal
-
-Tailscale VPN
-
-Ngrok
-
-Teleport
-
-PgAdmin 4
-
-DB Browser for SQLite
-
-Lens (GUI для Kubernetes)
-
-
+- `kubectl`, `helm`, `k9s`, `kind`, `minikube`
+- `terraform`, `terragrunt`, `tfsec`, `terraform-docs`
+- `aws`, `az`, `gcloud`, `doctl`, `flyctl`, `doppler`
+- `docker`, `lazygit`, `pre-commit`, `gh`, `glab`
+- `bat`, `fzf`, `htop`, `ncdu`, `tree`, `eza`, `tldr`
+- `yq`, `sops`, `pipx`, `python`
 
 ---
 
-🧠 Oh My Zsh и плагины
+## 🖥️ Устанавливаемые GUI-инструменты
 
-Автоматически устанавливаются:
+Полезные DevOps GUI, редакторы и VPN:
 
-Powerlevel10k (тема)
+- Docker Desktop
+- Google Cloud SDK
+- Visual Studio Code
+- iTerm2
+- Tailscale VPN
+- Ngrok
+- Teleport
+- PgAdmin 4
+- DB Browser for SQLite
+- Lens (Kubernetes GUI)
 
-Плагины:
+---
 
+## 🧠 Oh My Zsh + Powerlevel10k
 
+Автоматически устанавливаются и настраиваются:
+
+- [Oh My Zsh](https://ohmyz.sh/)
+- Тема [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
+- Конфиги `~/.zshrc` и `~/.p10k.zsh`
+
+### 🧩 Плагины Oh My Zsh
+
+```zsh
 plugins=(
   # 🌐 DevOps & Cloud
   git docker kubectl helm terraform aws gcloud az
@@ -188,10 +190,11 @@ plugins=(
   # 🍎 Только для Mac
   macos
 )
+```
 
-Алиасы DevOps:
+### 🏷️ Алиасы DevOps
 
-
+```zsh
 alias k='kubectl'
 alias kgp='kubectl get pods'
 alias kgn='kubectl get nodes'
@@ -201,119 +204,53 @@ alias dcu='docker compose up -d'
 alias dcd='docker compose down'
 alias lg='lazygit'
 alias p='ping 8.8.8.8'
-
-
----
-
-✨ Neovim + Lazy.nvim
-
-Автоматически устанавливаются:
-
-Neovim
-
-Lazy.nvim
-
-Конфиги init.lua и plugins.lua подтягиваются из GitHub
-
-
-DevOps-плагины:
-
-nvim-lspconfig, cmp-nvim-lsp, LuaSnip, lualine.nvim
-
-nvim-treesitter, markdown-preview.nvim, kubernetes.vim, dockerfile.vim, ansible-vim и др.
-
-
+```
 
 ---
 
-✅ CI Проверка (GitHub Actions)
+## ✨ Neovim + Lazy.nvim
 
-CI-пайплайн test-devops.yml:
+Устанавливаются автоматически:
 
-Установка всех CLI и GUI инструментов
+- [Neovim](https://neovim.io/)
+- [Lazy.nvim](https://github.com/folke/lazy.nvim)
+- Конфиги `init.lua` и `plugins.lua` подтягиваются из GitHub
 
-Проверка .zshrc и Powerlevel10k
+### 🧩 DevOps-плагины для Neovim:
 
-Проверка установки OMZ-плагинов
-
-Проверка DevOps алиасов
-
-Проверка Neovim + Lazy.nvim
-
-
-Пример CI лога
-
+- `nvim-lspconfig`, `cmp-nvim-lsp`, `LuaSnip`
+- `lualine.nvim`, `nvim-treesitter`, `dressing.nvim`
+- `markdown-preview.nvim`, `kubernetes.vim`, `dockerfile.vim`, `ansible-vim` и др.
 
 ---
 
-🧪 Тестирование вручную
+## ✅ Автотесты (CI)
 
+CI-пайплайн [`.github/workflows/test-devops.yml`](.github/workflows/test-devops.yml) выполняет:
+
+- Установку CLI и GUI тулзов
+- Проверку `.zshrc` и Powerlevel10k
+- Проверку всех OMZ плагинов
+- Проверку DevOps-алиасов
+- Проверку Neovim + Lazy.nvim
+- CI совместим с `macos-latest`
+
+---
+
+## 🧪 Тестирование вручную
+
+```bash
 source ~/.zshrc
 nvim +Lazy
-
-
----
-
-📂 Конфиги
-
-Все конфиги (.zshrc, .p10k.zsh, init.lua, plugins.lua) хранятся в:
-
-https://github.com/justrunme/devops-tools/tree/main/dotfiles
+```
 
 ---
 
-Oh My Zsh DevOps Plugins — Полный Список
+## 📁 Конфиги
 
-🌐 Cloud & DevOps
+Все кастомные конфиги хранятся в репозитории:
 
-git – Алиасы и функции для работы с Git
-
-docker – Упрощённые команды для Docker
-
-kubectl – Автодополнение и алиасы kubectl
-
-helm – Поддержка Helm CLI
-
-terraform – Утилиты и алиасы Terraform
-
-aws – Интеграция с AWS CLI
-
-gcloud – Интеграция с Google Cloud CLI
-
-az – Azure CLI автодополнения
-
-
-⚙️ CLI Улучшения
-
-zsh-autosuggestions – Предиктивные предложения команд
-
-zsh-syntax-highlighting – Подсветка синтаксиса команд
-
-zsh-completions – Расширенные автодополнения
-
-zsh-z – Быстрый переход по истории директорий
-
-fzf – Fuzzy-поиск по истории, файлам и командам
-
-
-🧠 Удобство
-
-colored-man-pages – Цветные man-страницы
-
-extract – Универсальная распаковка архивов (extract file.zip)
-
-history – Управление историей команд
-
-alias-finder – Интерактивное создание алиасов
-
-safe-paste – Защита от случайного выполнения вставляемого текста
-
-common-aliases – Базовые алиасы (ll, la, gst, и т.д.)
-
-
-🍎 Только для macOS
-
-macos – Утилиты и функции специфичные для macOS
+➡️ [`/dotfiles`](https://github.com/justrunme/devops-tools/tree/main/dotfiles)
 
 ---
 
