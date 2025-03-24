@@ -14,7 +14,7 @@ if ! command -v gum &>/dev/null; then
   brew install charmbracelet/tap/gum
 fi
 
-# ---------- Проверка pipx (для Python утилит) ----------
+# ---------- Проверка pipx ----------
 if ! command -v pipx &>/dev/null; then
   info "Устанавливаю pipx..."
   brew install pipx
@@ -31,7 +31,7 @@ for arg in "$@"; do
   esac
 done
 
-# ---------- Списки тулзов ----------
+# ---------- GUI инструменты ----------
 GUI_TOOLS=(
   "🐳 Docker Desktop — контейнеризация с интерфейсом:brew install --cask docker"
   "☁️ Google Cloud SDK — CLI-инструменты для Google Cloud:brew install --cask google-cloud-sdk"
@@ -41,44 +41,63 @@ GUI_TOOLS=(
   "🌐 Ngrok Tunnel — проброс портов в интернет:brew install --cask ngrok"
 )
 
+# ---------- CLI инструменты (с категориями) ----------
 CLI_TOOLS=(
-  "⚙️ kubectl — управление Kubernetes:brew install kubectl"
-  "⛵ helm — менеджер пакетов Kubernetes:brew install helm"
-  "📦 minikube — локальный кластер Kubernetes:brew install minikube"
-  "🐳 docker CLI — клиент Docker:brew install docker"
-  "☁️ AWS CLI — управление AWS:brew install awscli"
-  "🦊 GitLab CLI — инструмент GitLab:brew install glab"
-  "🧠 Azure CLI — работа с Microsoft Azure:brew install azure-cli"
-  "🐍 Python + pipx — для DevOps-скриптов:brew install python && brew install pipx && pipx ensurepath"
-  "🧰 Kind — Kubernetes в Docker:brew install kind"
-  "🔭 k9s — визуализация Kubernetes:brew install k9s"
-  "⚡ lazygit — удобная CLI Git-оболочка:brew install lazygit"
-  "🔍 fzf — fuzzy-поиск в терминале:brew install fzf"
-  "🧪 bat — улучшенная cat с подсветкой:brew install bat"
-  "📊 htop — мониторинг процессов:brew install htop"
-  "📁 ncdu — анализ диска:brew install ncdu"
-  "🌳 tree — древовидный вывод файлов:brew install tree"
+  # Kubernetes
+  "🧭 [Kubernetes] kubectl — управление кластерами:brew install kubectl"
+  "🧭 [Kubernetes] helm — менеджер пакетов:brew install helm"
+  "🧭 [Kubernetes] minikube — локальный кластер:brew install minikube"
+  "🧭 [Kubernetes] kind — Kubernetes в Docker:brew install kind"
+  "🧭 [Kubernetes] k9s — интерфейс для кластеров:brew install k9s"
+
+  # IaC
+  "🏗️ [IaC] terraform — инфраструктура как код:brew install terraform"
+  "🏗️ [IaC] terragrunt — надстройка над Terraform:brew install terragrunt"
+  "🏗️ [IaC] terraform-docs — генерация документации:brew install terraform-docs"
+  "🏗️ [IaC] tfsec — анализ безопасности Terraform:brew install tfsec"
+  "🏗️ [IaC] pre-commit — хуки и проверки кода:brew install pre-commit"
+
+  # Cloud
+  "☁️ [Cloud] AWS CLI — управление AWS:brew install awscli"
+  "☁️ [Cloud] Azure CLI — управление Azure:brew install azure-cli"
+  "☁️ [Cloud] GCloud CLI — Google Cloud CLI:brew install google-cloud-sdk"
+
+  # Git & Docker
+  "🐙 [Git] GitLab CLI — инструмент для GitLab:brew install glab"
+  "🐳 [Docker] Docker CLI — клиент Docker:brew install docker"
+  "⚡ [Git] lazygit — улучшенный git-интерфейс:brew install lazygit"
+
+  # Tools
+  "🧰 [Tools] Python + pipx — окружение для DevOps-скриптов:brew install python && brew install pipx && pipx ensurepath"
+  "🔍 [Tools] fzf — fuzzy поиск в терминале:brew install fzf"
+  "🧪 [Tools] bat — улучшенная cat с подсветкой:brew install bat"
+  "📊 [Tools] htop — мониторинг процессов:brew install htop"
+  "📁 [Tools] ncdu — анализ использования диска:brew install ncdu"
+  "🌳 [Tools] tree — древовидный вывод файлов:brew install tree"
 )
 
-# ---------- Объединение и фильтрация ----------
+# ---------- Определение финального списка ----------
 case "$MODE" in
   all) FINAL_LIST=("${GUI_TOOLS[@]}" "${CLI_TOOLS[@]}") ;;
   gui) FINAL_LIST=("${GUI_TOOLS[@]}") ;;
   cli) FINAL_LIST=("${CLI_TOOLS[@]}") ;;
   *)
-    info "Выбери инструменты для установки:"
-    CHOICES=$(printf "%s\n\n%s" "----- GUI -----" "${GUI_TOOLS[@]}" "----- CLI -----" "${CLI_TOOLS[@]}" |
+    CHOICES=$(printf "%s\n\n%s\n\n%s" \
+      "===== 🖥️ GUI инструменты =====" \
+      "${GUI_TOOLS[@]}" \
+      "===== 🛠️ CLI инструменты =====" \
+      "${CLI_TOOLS[@]}" |
       grep -v '^$' |
-      gum choose --no-limit --height=30 --header="Выбери DevOps-инструменты для установки:")
+      gum choose --no-limit --height=40 --header="Выбери DevOps-инструменты для установки:")
+
     FINAL_LIST=($CHOICES)
     ;;
 esac
 
 # ---------- Установка выбранных инструментов ----------
 for item in "${FINAL_LIST[@]}"; do
-  TOOL_NAME=$(echo "$item" | cut -d '—' -f1 | sed 's/^[^ ]* //')
+  TOOL_NAME=$(echo "$item" | cut -d '—' -f1 | sed 's/.*] //;s/^[^ ]* //')
   TOOL_CMD=$(echo "$item" | cut -d ':' -f2-)
-
   TOOL_ID=$(echo "$TOOL_CMD" | awk '{print $3}')
 
   if brew list "$TOOL_ID" &>/dev/null || brew list --cask "$TOOL_ID" &>/dev/null; then
@@ -90,4 +109,4 @@ for item in "${FINAL_LIST[@]}"; do
 done
 
 # ---------- Финал ----------
-echo -e "\n${GREEN}Установка DevOps-инструментов завершена!${NC}"
+echo -e "\n${GREEN}Установка всех выбранных инструментов завершена!${NC}"
