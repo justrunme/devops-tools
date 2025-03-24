@@ -24,7 +24,7 @@ done
 
 # ---------- Проверка gum ----------
 if ! command -v gum &>/dev/null; then
-  info "Устанавливаю gum..."
+  info "Устанавливаю gum (интерфейс выбора)..."
   brew install charmbracelet/tap/gum
 fi
 
@@ -43,6 +43,10 @@ GUI_TOOLS=(
   "iTerm2 Terminal:brew install --cask iterm2"
   "Tailscale VPN:brew install --cask tailscale"
   "Ngrok Tunnel:brew install --cask ngrok"
+  "Teleport:brew install teleport"
+  "Lens — Kubernetes GUI:brew install --cask lens"
+  "DB Browser for SQLite:brew install --cask db-browser-for-sqlite"
+  "PgAdmin 4 — PostgreSQL GUI:brew install --cask pgadmin4"
 )
 
 # ---------- CLI инструменты ----------
@@ -102,7 +106,7 @@ case "$MODE" in
     ;;
 esac
 
-# ---------- Установка инструментов ----------
+# ---------- Установка ----------
 for item in "${FINAL_LIST[@]}"; do
   TOOL_NAME=$(echo "$item" | cut -d ':' -f1)
   TOOL_CMD=$(echo "$item" | cut -d ':' -f2-)
@@ -116,36 +120,34 @@ for item in "${FINAL_LIST[@]}"; do
   fi
 done
 
-# ---------- Установка Oh My Zsh и плагинов ----------
+# ---------- Установка Oh My Zsh + DevOps-плагины ----------
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-  info "Устанавливаю Oh My Zsh и плагины..."
+  info "Устанавливаю Oh My Zsh и DevOps плагины..."
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.oh-my-zsh/custom/themes/powerlevel10k
   git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
   git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
   git clone https://github.com/zsh-users/zsh-completions ~/.oh-my-zsh/custom/plugins/zsh-completions
   git clone https://github.com/agkozak/zsh-z ~/.oh-my-zsh/custom/plugins/zsh-z
-  git clone https://github.com/MenkeTechnologies/zsh-more-completions ~/.oh-my-zsh/custom/plugins/zsh-more-completions
-  git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
 fi
 
-# ---------- Конфиги .zshrc и .p10k.zsh ----------
+# ---------- Конфиги Oh My Zsh с GitHub ----------
 info "Загружаю конфиги из GitHub..."
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.zshrc -o ~/.zshrc
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.p10k.zsh -o ~/.p10k.zsh
 success ".zshrc и .p10k.zsh установлены"
 
-# ---------- Shell по умолчанию (если не CI) ----------
+# ---------- Меняем shell на Zsh (если не CI) ----------
 if [[ "$CI" != "true" ]]; then
   info "Делаю Zsh shell'ом по умолчанию..."
-  chsh -s /bin/zsh || true
+  chsh -s /bin/zsh
 fi
 
-# ---------- Автозапуск Neovim Lazy.nvim ----------
-info "Запускаю Neovim для синхронизации плагинов..."
+# ---------- Автозапуск Neovim и применение конфигурации ----------
+info "Автозапускаю nvim для установки плагинов..."
 nvim --headless "+Lazy! sync" +qa || true
 
 # ---------- Финал ----------
 echo -e "\n${GREEN}✅ Установка завершена!${NC}"
-echo -e "${YELLOW}➡️ Проверь Neovim: nvim и команда :Lazy${NC}"
+echo -e "${YELLOW}➡️ Проверь Neovim: nvim + :Lazy${NC}"
 echo -e "${YELLOW}➡️ Перезапусти терминал или выполни: source ~/.zshrc${NC}"
