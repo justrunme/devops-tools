@@ -119,6 +119,46 @@ for item in "${FINAL_LIST[@]}"; do
   fi
 done
 
+# ---------- Установка Oh My Zsh и DevOps-плагинов ----------
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+  info "Устанавливаю Oh My Zsh..."
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.oh-my-zsh/custom/themes/powerlevel10k
+  git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+  git clone https://github.com/zsh-users/zsh-completions ~/.oh-my-zsh/custom/plugins/zsh-completions
+  git clone https://github.com/agkozak/zsh-z ~/.oh-my-zsh/custom/plugins/zsh-z
+
+  info "Настраиваю .zshrc..."
+  cat <<EOF > ~/.zshrc
+export ZSH="\$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+plugins=(
+  git
+  docker
+  kubectl
+  helm
+  terraform
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  zsh-completions
+  zsh-z
+  fzf
+)
+
+source \$ZSH/oh-my-zsh.sh
+[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+EOF
+
+  info "Создаю .p10k.zsh по умолчанию..."
+  curl -fsSL https://raw.githubusercontent.com/romkatv/powerlevel10k-media/master/config/p10k-classic.zsh -o ~/.p10k.zsh
+
+  success "Oh My Zsh установлен и настроен"
+else
+  success "Oh My Zsh уже установлен"
+fi
+
 # ---------- Финал ----------
-echo -e "\n${GREEN}Установка всех выбранных инструментов завершена!${NC}"
-echo -e "${YELLOW}Запусти nvim и выполни :Lazy для установки плагинов.${NC}"
+echo -e "\n${GREEN}✅ Установка всех выбранных инструментов завершена!${NC}"
+echo -e "${YELLOW}➡️ Запусти nvim и выполни :Lazy для установки плагинов.${NC}"
+echo -e "${YELLOW}➡️ Перезапусти терминал или выполни: source ~/.zshrc${NC}"
