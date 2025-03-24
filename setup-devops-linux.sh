@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# ---------- Цвета ----------
+# ---------- Цвета и функции ----------
 GREEN="\033[0;32m"
 YELLOW="\033[1;33m"
 RED="\033[0;31m"
@@ -24,14 +24,10 @@ done
 
 # ---------- Определение пакетного менеджера ----------
 detect_package_manager() {
-  if command -v apt &>/dev/null; then
-    echo "apt"
-  elif command -v dnf &>/dev/null; then
-    echo "dnf"
-  elif command -v pacman &>/dev/null; then
-    echo "pacman"
-  else
-    echo "unsupported"
+  if command -v apt &>/dev/null; then echo "apt"
+  elif command -v dnf &>/dev/null; then echo "dnf"
+  elif command -v pacman &>/dev/null; then echo "pacman"
+  else echo "unsupported"
   fi
 }
 
@@ -41,18 +37,28 @@ if [[ "$PKG_MANAGER" == "unsupported" ]]; then
   exit 1
 fi
 
-# ---------- Обёртка для установки пакетов ----------
-install_pkg() {
-  case "$PKG_MANAGER" in
-    apt) sudo apt-get install -y "$@" ;;
-    dnf) sudo dnf install -y "$@" ;;
-    pacman) sudo pacman -S --noconfirm "$@" ;;
-  esac
-}
+# ---------- Установка базовых CLI утилит ----------
+info "Устанавливаю базовые зависимости..."
+case "$PKG_MANAGER" in
+  apt)
+    sudo apt-get update
+    sudo apt-get install -y unzip curl wget git python3 python3-pip zsh
+    ;;
+  dnf)
+    sudo dnf install -y unzip curl wget git python3 python3-pip zsh
+    ;;
+  pacman)
+    sudo pacman -Sy --noconfirm unzip curl wget git python zsh
+    ;;
+esac
 
-# ---------- Установка базовых CLI пакетов ----------
-info "Устанавливаю базовые утилиты..."
-install_pkg unzip curl wget git zsh neovim python3 python3-pip
+# ---------- Установка Homebrew ----------
+if ! command -v brew &>/dev/null; then
+  info "Устанавливаю Homebrew..."
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.profile
+fi
 
 # ---------- Установка pipx ----------
 if ! command -v pipx &>/dev/null; then
@@ -61,38 +67,21 @@ if ! command -v pipx &>/dev/null; then
   python3 -m pipx ensurepath
 fi
 
-# ---------- Установка Linuxbrew ----------
-if [[ ! -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
-  info "Устанавливаю Homebrew..."
-  bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-fi
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-# ---------- Установка gum ----------
+# ---------- Установка gum через brew ----------
 if ! command -v gum &>/dev/null; then
-  info "Устанавливаю gum..."
-
-  GUM_URL=$(curl -s https://api.github.com/repos/charmbracelet/gum/releases/latest \
-    | grep "browser_download_url" \
-    | grep "linux_amd64.deb" \
-    | cut -d '"' -f 4 | head -n 1)
-
-  if [[ -z "$GUM_URL" || "$GUM_URL" != https:* ]]; then
-    echo -e "${YELLOW}[WARN]${NC} Не удалось получить .deb файл gum. Использую fallback версию..."
-    GUM_URL="https://github.com/charmbracelet/gum/releases/download/v0.13.0/gum_0.13.0_linux_amd64.deb"
-  fi
-
-  wget -O /tmp/gum.deb "$GUM_URL"
-  sudo dpkg -i /tmp/gum.deb || sudo apt-get install -f -y
-  rm -f /tmp/gum.deb
-  success "Gum установлен"
+  info "Устанавливаю gum через Homebrew..."
+  brew install gum
 fi
 
-# ---------- Установка Flatpak ----------
+# ---------- Проверка Flatpak ----------
 if ! command -v flatpak &>/dev/null; then
   info "Устанавливаю Flatpak..."
-  install_pkg flatpak
-  sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
+  case "$PKG_MANAGER" in
+    apt) sudo apt-get install -y flatpak ;;
+    dnf) sudo dnf install -y flatpak ;;
+    pacman) sudo pacman -S --noconfirm flatpak ;;
+  esac
+  sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 fi
 
 # ---------- GUI инструменты ----------
@@ -101,7 +90,7 @@ GUI_TOOLS=(
   "Teleport:flatpak install -y flathub com.goteleport.Teleport"
   "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
   "DB Browser for SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
-  "Lens K8s GUI:flatpak install -y flathub dev.k8slens.OpenLens"
+  "Lens (K8s GUI):flatpak install -y flathub dev.k8slens.OpenLens"
 )
 
 # ---------- CLI инструменты ----------
@@ -111,9 +100,8 @@ CLI_TOOLS=(
   "k9s:brew install k9s"
   "terraform:brew install terraform"
   "terragrunt:brew install terragrunt"
-  "tfsec:brew install tfsec"
   "terraform-docs:brew install terraform-docs"
-  "pre-commit:brew install pre-commit"
+  "tfsec:brew install tfsec"
   "awscli:brew install awscli"
   "azure-cli:brew install azure-cli"
   "google-cloud-sdk:brew install google-cloud-sdk"
@@ -124,6 +112,7 @@ CLI_TOOLS=(
   "glab:brew install glab"
   "docker:brew install docker"
   "lazygit:brew install lazygit"
+  "pre-commit:brew install pre-commit"
   "fzf:brew install fzf"
   "bat:brew install bat"
   "htop:brew install htop"
@@ -133,7 +122,7 @@ CLI_TOOLS=(
   "sops:brew install sops"
   "tldr:brew install tldr"
   "eza:brew install eza"
-  "Neovim + Lazy.nvim:mkdir -p ~/.config/nvim/lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/init.lua -o ~/.config/nvim/init.lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/lua/plugins.lua -o ~/.config/nvim/lua/plugins.lua && git clone https://github.com/folke/lazy.nvim ~/.local/share/nvim/lazy/lazy.nvim"
+  "neovim:brew install neovim"
 )
 
 # ---------- Выбор инструментов ----------
@@ -142,7 +131,7 @@ if [[ "$MODE" == "" ]]; then
     "===== 🖥️ GUI инструменты =====" "${GUI_TOOLS[@]}" \
     "===== 🛠️ CLI инструменты =====" "${CLI_TOOLS[@]}" |
     grep -v '^$' |
-    gum choose --no-limit --height=40 --header="Выбери DevOps инструменты:")
+    gum choose --no-limit --height=40 --header="Выбери инструменты:")
   FINAL_LIST=($CHOICES)
 elif [[ "$MODE" == "all" ]]; then
   FINAL_LIST=("${GUI_TOOLS[@]}" "${CLI_TOOLS[@]}")
@@ -156,11 +145,14 @@ fi
 for item in "${FINAL_LIST[@]}"; do
   TOOL_NAME=$(echo "$item" | cut -d ':' -f1)
   TOOL_CMD=$(echo "$item" | cut -d ':' -f2-)
-  gum spin --title "Устанавливаю $TOOL_NAME..." -- bash -c "$TOOL_CMD"
-  success "$TOOL_NAME установлен"
+
+  if [[ -n "$TOOL_CMD" ]]; then
+    gum spin --title "Устанавливаю $TOOL_NAME..." -- bash -c "$TOOL_CMD"
+    success "$TOOL_NAME установлен"
+  fi
 done
 
-# ---------- Установка Oh My Zsh ----------
+# ---------- Установка Oh My Zsh и плагинов ----------
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   info "Устанавливаю Oh My Zsh..."
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -171,22 +163,28 @@ if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   git clone https://github.com/agkozak/zsh-z ~/.oh-my-zsh/custom/plugins/zsh-z
 fi
 
-# ---------- Конфиги из GitHub ----------
-info "Загружаю .zshrc и .p10k.zsh..."
+# ---------- Загрузка .zshrc и .p10k.zsh ----------
+info "Загружаю конфиги из GitHub..."
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.zshrc -o ~/.zshrc
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.p10k.zsh -o ~/.p10k.zsh
-success "Конфиги установлены"
+success "Конфиги .zshrc и .p10k.zsh установлены"
 
-# ---------- Смена shell на Zsh ----------
-if [[ "$SHELL" != *zsh ]]; then
-  info "Смена shell на Zsh..."
+# ---------- Смена shell на zsh ----------
+if [[ "$SHELL" != "$(which zsh)" ]]; then
+  info "Делаю zsh shell'ом по умолчанию..."
   chsh -s "$(which zsh)"
 fi
 
-# ---------- Lazy.nvim автозагрузка ----------
-info "Автозапускаю Neovim для Lazy.nvim..."
+# ---------- Загрузка Neovim конфигов ----------
+info "Настраиваю Neovim..."
+mkdir -p ~/.config/nvim/lua
+curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/init.lua -o ~/.config/nvim/init.lua
+curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/lua/plugins.lua -o ~/.config/nvim/lua/plugins.lua
+git clone https://github.com/folke/lazy.nvim ~/.local/share/nvim/lazy/lazy.nvim
+
+info "Автозапускаю Neovim (headless) для Lazy.nvim..."
 nvim --headless "+Lazy! sync" +qa || true
 
 # ---------- Финал ----------
 echo -e "\n${GREEN}✅ Установка завершена!${NC}"
-echo -e "${YELLOW}➡️ Перезапусти терминал или выполни: source ~/.zshrc${NC}"
+echo -e "${YELLOW}➡️ Проверь: nvim + :Lazy и source ~/.zshrc${NC}"
