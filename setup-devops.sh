@@ -106,7 +106,7 @@ case "$MODE" in
     ;;
 esac
 
-# ---------- Установка ----------
+# ---------- Установка инструментов ----------
 for item in "${FINAL_LIST[@]}"; do
   TOOL_NAME=$(echo "$item" | cut -d ':' -f1)
   TOOL_CMD=$(echo "$item" | cut -d ':' -f2-)
@@ -120,7 +120,7 @@ for item in "${FINAL_LIST[@]}"; do
   fi
 done
 
-# ---------- Установка Oh My Zsh + DevOps-плагины ----------
+# ---------- Установка Oh My Zsh + DevOps плагины ----------
 if [[ -d "$HOME/.oh-my-zsh" ]]; then
   info "Oh My Zsh уже установлен — пропускаю установку"
 else
@@ -133,19 +133,19 @@ else
   git clone https://github.com/agkozak/zsh-z ~/.oh-my-zsh/custom/plugins/zsh-z
 fi
 
-# ---------- Подгружаем конфиги из GitHub ----------
+# ---------- Загрузка .zshrc и .p10k.zsh ----------
 info "Загружаю конфиги из GitHub..."
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.zshrc -o ~/.zshrc
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.p10k.zsh -o ~/.p10k.zsh
 success ".zshrc и .p10k.zsh установлены"
 
-# ---------- Меняем shell на Zsh (если не CI) ----------
+# ---------- Смена shell на Zsh (если не в CI) ----------
 if [[ "$CI" != "true" ]]; then
   info "Делаю Zsh shell'ом по умолчанию..."
   chsh -s /bin/zsh
 fi
 
-# ---------- Автозапуск Neovim для Lazy.nvim ----------
+# ---------- Автоматический запуск Neovim для Lazy.nvim ----------
 info "Автозапускаю Neovim (headless) для Lazy.nvim..."
 nvim --headless "+Lazy! sync" +qa || true
 
