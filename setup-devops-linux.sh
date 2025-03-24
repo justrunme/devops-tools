@@ -76,13 +76,13 @@ fi
 # ---------- Flatpak flathub ----------
 gum_spin "Добавляю flathub..." "sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
 
-# ---------- GUI инструменты ----------
+# ---------- GUI инструменты (Flatpak для user) ----------
 GUI_TOOLS=(
-  "VSCode:flatpak install -y flathub com.visualstudio.code"
-  "Teleport:flatpak install -y flathub com.goteleport.Teleport"
-  "PgAdmin4:flatpak install -y flathub io.pgadmin.pgadmin4"
-  "DB Browser SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
-  "Lens Kubernetes GUI:flatpak install -y flathub dev.k8slens.OpenLens"
+  "VSCode:flatpak install --user -y flathub com.visualstudio.code"
+  "Teleport:flatpak install --user -y flathub com.goteleport.Teleport"
+  "PgAdmin4:flatpak install --user -y flathub io.pgadmin.pgadmin4"
+  "DB Browser SQLite:flatpak install --user -y flathub io.github.sqlitebrowser.sqlitebrowser"
+  "Lens Kubernetes GUI:flatpak install --user -y flathub dev.k8slens.OpenLens"
 )
 
 # ---------- CLI инструменты ----------
