@@ -18,7 +18,6 @@ plugins=(
   zsh-completions
   zsh-z
   fzf
-  command-not-found
 
   # 🧠 Удобство
   colored-man-pages
