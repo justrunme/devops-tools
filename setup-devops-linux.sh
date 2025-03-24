@@ -6,9 +6,9 @@ GREEN="\033[0;32m"
 YELLOW="\033[1;33m"
 RED="\033[0;31m"
 NC="\033[0m"
-info()    { echo -e "${YELLOW}[INFO]${NC} $1"; }
-success() { echo -e "${GREEN}[OK]${NC} $1"; }
-error()   { echo -e "${RED}[ERROR]${NC} $1"; }
+function info()    { echo -e "${YELLOW}[INFO]${NC} $1"; }
+function success() { echo -e "${GREEN}[OK]${NC} $1"; }
+function error()   { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # ---------- Аргументы ----------
 MODE=""
@@ -29,38 +29,10 @@ if [[ "$CI" == "true" ]]; then
   [[ "$MODE" == "all" || "$MODE" == "gui" ]] && MODE="cli"
 fi
 
-# ---------- Определение пакетного менеджера ----------
-detect_package_manager() {
-  if command -v apt &>/dev/null; then
-    echo "apt"
-  elif command -v dnf &>/dev/null; then
-    echo "dnf"
-  elif command -v pacman &>/dev/null; then
-    echo "pacman"
-  else
-    echo "unsupported"
-  fi
-}
-
-PKG_MANAGER=$(detect_package_manager)
-if [[ "$PKG_MANAGER" == "unsupported" ]]; then
-  error "Неизвестный пакетный менеджер. Поддерживаются apt, dnf, pacman."
-  exit 1
-fi
-
-# ---------- Обёртка для установки пакетов ----------
-install_pkg() {
-  case "$PKG_MANAGER" in
-    apt) sudo apt-get install -y "$@" ;;
-    dnf) sudo dnf install -y "$@" ;;
-    pacman) sudo pacman -S --noconfirm "$@" ;;
-  esac
-}
-
 # ---------- Проверка gum ----------
 if ! command -v gum &>/dev/null; then
   info "Устанавливаю gum..."
-  sudo apt-get update && sudo apt-get install -y wget tar
+  sudo apt-get update && sudo apt-get install -y wget tar curl
   curl -s https://api.github.com/repos/charmbracelet/gum/releases/latest |
     grep browser_download_url |
     grep linux_amd64.tar.gz |
@@ -75,54 +47,54 @@ fi
 # ---------- Проверка pipx ----------
 if ! command -v pipx &>/dev/null; then
   info "Устанавливаю pipx..."
-  install_pkg python3-pip
+  sudo apt-get update && sudo apt-get install -y python3-pip
   python3 -m pip install --user pipx
   python3 -m pipx ensurepath
 fi
 
 # ---------- GUI инструменты ----------
 GUI_TOOLS=(
-  "Docker Engine:install_pkg docker.io"
-  "Google Cloud SDK:install_pkg google-cloud-sdk"
+  "Docker Engine:sudo apt-get install -y docker.io"
+  "Google Cloud SDK:sudo apt-get install -y google-cloud-sdk"
   "Visual Studio Code:flatpak install -y flathub com.visualstudio.code"
-  "Tailscale VPN:install_pkg tailscale"
+  "Tailscale VPN:sudo apt-get install -y tailscale"
   "Ngrok Tunnel:sudo snap install ngrok"
+  "Teleport 17.3.4:echo '⚠️ Пропущен в CI или вручную установить из https://goteleport.com/download/'"
   "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
   "DB Browser for SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
   "Lens (K8s GUI):flatpak install -y flathub dev.k8slens.OpenLens"
-  # Teleport временно пропускаем из-за проблем установки
 )
 
 # ---------- CLI инструменты ----------
 CLI_TOOLS=(
-  "kubectl:install_pkg kubectl"
-  "helm:install_pkg helm"
-  "kind:install_pkg kind"
-  "k9s:install_pkg k9s"
-  "terraform:install_pkg terraform"
-  "terragrunt:install_pkg terragrunt"
-  "terraform-docs:install_pkg terraform-docs"
-  "tfsec:install_pkg tfsec"
-  "pre-commit:install_pkg pre-commit"
-  "awscli:install_pkg awscli"
-  "azure-cli:install_pkg azure-cli"
-  "google-cloud-sdk:install_pkg google-cloud-sdk"
-  "doctl:install_pkg doctl"
-  "flyctl:install_pkg flyctl"
-  "glab:install_pkg glab"
-  "docker:install_pkg docker"
-  "lazygit:install_pkg lazygit"
-  "python/pipx:install_pkg python3 && python3 -m pip install --user pipx && pipx ensurepath"
-  "fzf:install_pkg fzf"
-  "bat:install_pkg bat"
-  "htop:install_pkg htop"
-  "ncdu:install_pkg ncdu"
-  "tree:install_pkg tree"
-  "yq:install_pkg yq"
-  "sops:install_pkg sops"
-  "tldr:install_pkg tldr"
-  "eza:install_pkg eza"
-  "Neovim + конфиг:install_pkg neovim && mkdir -p ~/.config/nvim/lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/init.lua -o ~/.config/nvim/init.lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/lua/plugins.lua -o ~/.config/nvim/lua/plugins.lua && git clone https://github.com/folke/lazy.nvim ~/.local/share/nvim/lazy/lazy.nvim"
+  "kubectl:sudo apt-get install -y kubectl"
+  "helm:sudo apt-get install -y helm"
+  "kind:sudo apt-get install -y kind"
+  "k9s:sudo apt-get install -y k9s"
+  "terraform:sudo apt-get install -y terraform"
+  "terragrunt:sudo apt-get install -y terragrunt"
+  "terraform-docs:sudo apt-get install -y terraform-docs"
+  "tfsec:sudo apt-get install -y tfsec"
+  "pre-commit:sudo apt-get install -y pre-commit"
+  "awscli:sudo apt-get install -y awscli"
+  "azure-cli:sudo apt-get install -y azure-cli"
+  "google-cloud-sdk:sudo apt-get install -y google-cloud-sdk"
+  "doctl:sudo apt-get install -y doctl"
+  "flyctl:sudo apt-get install -y flyctl"
+  "glab:sudo apt-get install -y glab"
+  "docker:sudo apt-get install -y docker"
+  "lazygit:sudo apt-get install -y lazygit"
+  "python/pipx:sudo apt-get install -y python3 && python3 -m pip install --user pipx && pipx ensurepath"
+  "fzf:sudo apt-get install -y fzf"
+  "bat:sudo apt-get install -y bat"
+  "htop:sudo apt-get install -y htop"
+  "ncdu:sudo apt-get install -y ncdu"
+  "tree:sudo apt-get install -y tree"
+  "yq:sudo apt-get install -y yq"
+  "sops:sudo apt-get install -y sops"
+  "tldr:sudo apt-get install -y tldr"
+  "eza:sudo apt-get install -y eza"
+  "Neovim + конфиг:sudo apt-get install -y neovim && mkdir -p ~/.config/nvim/lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/init.lua -o ~/.config/nvim/init.lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/lua/plugins.lua -o ~/.config/nvim/lua/plugins.lua && git clone https://github.com/folke/lazy.nvim ~/.local/share/nvim/lazy/lazy.nvim"
 )
 
 # ---------- Выбор инструментов ----------
@@ -164,17 +136,14 @@ curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfile
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.p10k.zsh -o ~/.p10k.zsh
 success ".zshrc и .p10k.zsh установлены"
 
-# ---------- Смена shell на Zsh (если не в CI) ----------
 if [[ "$CI" != "true" ]]; then
   info "Делаю Zsh shell'ом по умолчанию..."
   chsh -s $(which zsh)
 fi
 
-# ---------- Автоматический запуск Neovim для Lazy.nvim ----------
 info "Автозапускаю Neovim (headless) для Lazy.nvim..."
 nvim --headless "+Lazy! sync" +qa || true
 
-# ---------- Финал ----------
 echo -e "\n${GREEN}✅ Установка завершена!${NC}"
 echo -e "${YELLOW}➡️ Проверь Neovim: nvim + :Lazy${NC}"
 echo -e "${YELLOW}➡️ Перезапусти терминал или выполни: source ~/.zshrc${NC}"
