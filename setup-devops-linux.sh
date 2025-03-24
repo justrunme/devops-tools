@@ -58,28 +58,25 @@ if ! command -v gum &>/dev/null; then
   info "Устанавливаю gum..."
   mkdir -p "$HOME/.local/bin"
 
-  GUM_DEB=$(curl -s https://api.github.com/repos/charmbracelet/gum/releases/latest | grep browser_download_url | grep 'linux_amd64.deb' | cut -d '"' -f 4)
-  GUM_BIN=$(curl -s https://api.github.com/repos/charmbracelet/gum/releases/latest | grep browser_download_url | grep 'gum_linux_amd64.tar.gz' | cut -d '"' -f 4)
+  # Статическая проверенная версия
+  GUM_VERSION="v0.12.0"
+  GUM_TAR="gum_${GUM_VERSION}_linux_amd64.tar.gz"
+  GUM_URL="https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/${GUM_TAR}"
 
-  if [[ -n "$GUM_DEB" ]]; then
-    wget "$GUM_DEB" -O gum.deb
-    sudo dpkg -i gum.deb || sudo apt-get install -f -y
-    rm gum.deb
-    success "gum установлен через .deb"
-  elif [[ -n "$GUM_BIN" ]]; then
-    echo -e "${YELLOW}[WARN]${NC} .deb не найден — fallback на tar.gz"
-    wget "$GUM_BIN" -O gum.tar.gz
-    tar -xzf gum.tar.gz -C "$HOME/.local/bin"
-    chmod +x "$HOME/.local/bin/gum"
-    rm gum.tar.gz
-    export PATH="$HOME/.local/bin:$PATH"
-    success "gum установлен вручную в ~/.local/bin"
-  else
-    error "Не удалось найти gum .deb или бинарник. Установка невозможна."
+  wget -q "$GUM_URL" -O gum.tar.gz || {
+    error "Не удалось скачать gum с $GUM_URL"
     exit 1
-  fi
-fi
+  }
 
+  tar -xzf gum.tar.gz -C "$HOME/.local/bin"
+  chmod +x "$HOME/.local/bin/gum"
+  rm gum.tar.gz
+
+  export PATH="$HOME/.local/bin:$PATH"
+  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+
+  success "gum установлен вручную в ~/.local/bin"
+fi
 
 # ---------- Установка Flatpak ----------
 if ! command -v flatpak &>/dev/null; then
