@@ -1,4 +1,4 @@
-name: Test Full DevOps Installer (Linux)
+name: Test DevOps Installer on Linux (CLI + Configs)
 
 on:
   push:
@@ -16,33 +16,38 @@ jobs:
       - name: Prepare dependencies (apt, pipx, gum, flatpak)
         run: |
           sudo apt update
-          sudo apt install -y python3 python3-pip unzip curl git zsh flatpak
+          sudo apt install -y python3 python3-pip unzip curl git zsh
+
           python3 -m pip install --user pipx
           python3 -m pipx ensurepath
 
-          # Add gum from Charm if not in apt
-          curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo tee /etc/apt/keyrings/charm.gpg >/dev/null
-          echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ /" | sudo tee /etc/apt/sources.list.d/charm.list
-          sudo apt update && sudo apt install -y gum
-
-          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          # Установка gum с charm.sh
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://repo.charm.sh/apt/gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/charm-archive-keyring.gpg >/dev/null
+          echo "deb [signed-by=/etc/apt/keyrings/charm-archive-keyring.gpg] https://repo.charm.sh/apt/ /" | sudo tee /etc/apt/sources.list.d/charm.list
+          sudo apt update
+          sudo apt install -y gum
 
       - name: Set PATHs
         run: |
-          echo 'export PATH=$HOME/.local/bin:$PATH' >> $GITHUB_ENV
-          echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
-          source ~/.bashrc
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.local/bin:$PATH"
 
       - name: Make script executable and run full install
         run: |
           chmod +x setup-devops-linux.sh
-          ./setup-devops-linux.sh --all
+          ./setup-devops-linux.sh --cli
 
       - name: Verify installed CLI tools
         run: |
           TOOLS=(
-            terraform helm kubectl aws fzf bat htop ncdu tree
-            pre-commit pipx python3 tldr yq eza
+            terraform terragrunt terraform-docs tfsec
+            kubectl helm k9s kind
+            aws az gcloud
+            glab docker lazygit
+            bat fzf htop ncdu tree
+            python pipx pre-commit
+            doctl flyctl sops tldr yq eza
           )
 
           echo "🔍 Проверка CLI инструментов..."
@@ -73,6 +78,14 @@ jobs:
             zsh-syntax-highlighting
             zsh-completions
             zsh-z
+            fzf
+            command-not-found
+            alias-finder
+            colored-man-pages
+            extract
+            history
+            safe-paste
+            common-aliases
           )
           for p in "${PLUGINS[@]}"; do
             [[ -d "$HOME/.oh-my-zsh/custom/plugins/$p" ]] && echo "✅ $p установлен" || echo "⚠️ $p не найден (возможно встроен)"
@@ -102,4 +115,4 @@ jobs:
 
       - name: Успех!
         if: success()
-        run: echo "🎉 Установка и конфигурация DevOps-окружения для Linux успешно протестирована!"
+        run: echo "🎉 Установка и конфигурация DevOps-окружения на Linux успешно протестирована!"
