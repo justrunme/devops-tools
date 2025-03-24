@@ -45,37 +45,28 @@ GUI_TOOLS=(
   "🌐 Ngrok Tunnel — проброс портов:brew install --cask ngrok"
 )
 
-# ---------- CLI инструменты (по категориям) ----------
+# ---------- CLI инструменты ----------
 CLI_TOOLS=(
-  # Kubernetes
   "🧭 [Kubernetes] kubectl — управление кластерами:brew install kubectl"
   "🧭 [Kubernetes] helm — менеджер пакетов:brew install helm"
   "🧭 [Kubernetes] minikube — локальный кластер:brew install minikube"
   "🧭 [Kubernetes] kind — Kubernetes в Docker:brew install kind"
   "🧭 [Kubernetes] k9s — терминал для кластеров:brew install k9s"
-
-  # IaC
   "🏗️ [IaC] terraform — инфраструктура как код:brew install terraform"
   "🏗️ [IaC] terragrunt — надстройка Terraform:brew install terragrunt"
   "🏗️ [IaC] terraform-docs — генерация документации:brew install terraform-docs"
   "🏗️ [IaC] tfsec — аудит безопасности:brew install tfsec"
   "🏗️ [IaC] pre-commit — хуки для Git:brew install pre-commit"
-
-  # Cloud
   "☁️ [Cloud] AWS CLI — управление AWS:brew install awscli"
   "☁️ [Cloud] Azure CLI — управление Azure:brew install azure-cli"
   "☁️ [Cloud] GCloud CLI — GCP CLI:brew install google-cloud-sdk"
   "☁️ [Cloud] doctl — CLI для DigitalOcean:brew install doctl"
   "☁️ [Cloud] flyctl — CLI для Fly.io:brew install flyctl"
   "☁️ [Cloud] doppler — менеджер секретов:brew install dopplerhq/cli/doppler"
-
-  # Git & Docker
   "🐙 [Git] GitHub CLI — работа с GitHub:brew install gh"
   "🐙 [Git] GitLab CLI — работа с GitLab:brew install glab"
   "🐳 [Docker] Docker CLI — клиент Docker:brew install docker"
   "⚡ [Git] lazygit — улучшенный git:brew install lazygit"
-
-  # Tools
   "🧰 [Tools] Python + pipx — окружение:brew install python && brew install pipx && pipx ensurepath"
   "🔍 [Tools] fzf — fuzzy поиск:brew install fzf"
   "🧪 [Tools] bat — cat с подсветкой:brew install bat"
@@ -86,6 +77,7 @@ CLI_TOOLS=(
   "🔐 [Tools] sops — шифрование секретов:brew install sops"
   "📘 [Tools] tldr — упрощённые man:brew install tldr"
   "📁 [Tools] eza — улучшенный ls (exa fork):brew install eza"
+  "📝 [DevOps] Neovim + lazy.nvim + конфиг:brew install neovim && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/init.lua -o ~/.config/nvim/init.lua && mkdir -p ~/.config/nvim/lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/lua/plugins.lua -o ~/.config/nvim/lua/plugins.lua && git clone https://github.com/folke/lazy.nvim ~/.local/share/nvim/lazy/lazy.nvim"
 )
 
 # ---------- Пропуск GUI в CI-среде ----------
@@ -105,7 +97,7 @@ case "$MODE" in
     CHOICES=$(printf "%s\n\n%s\n\n%s" \
       "===== 🖥️ GUI инструменты =====" \
       "${GUI_TOOLS[@]}" \
-      "===== 🛠️ CLI инструменты =====" \
+      "===== 🛠️ CLI + Neovim инструменты =====" \
       "${CLI_TOOLS[@]}" |
       grep -v '^$' |
       gum choose --no-limit --height=40 --header="Выбери DevOps-инструменты для установки:")
@@ -129,3 +121,4 @@ done
 
 # ---------- Финал ----------
 echo -e "\n${GREEN}Установка всех выбранных инструментов завершена!${NC}"
+echo -e "${YELLOW}Запусти nvim и выполни :Lazy для установки плагинов.${NC}"
