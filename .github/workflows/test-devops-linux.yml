@@ -13,6 +13,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Установка зависимостей и Flatpak
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak zsh curl wget git python3 python3-pip unzip
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          pip3 install pipx
+          pipx ensurepath
+
       - name: Make script executable and run full install
         run: |
           chmod +x setup-devops-linux.sh
