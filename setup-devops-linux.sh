@@ -23,6 +23,13 @@ for arg in "$@"; do
   esac
 done
 
+# ---------- Проверка CI (для Flatpak и GUI) ----------
+if [[ "$CI" == "true" ]]; then
+  info "CI-среда: GUI инструменты и Flatpak будут пропущены"
+  MODE="cli"
+  SKIP_GUI=true
+fi
+
 # ---------- Определение пакетного менеджера ----------
 detect_package_manager() {
   if command -v apt &>/dev/null; then
@@ -51,16 +58,14 @@ install_pkg() {
   esac
 }
 
-# ---------- Установка Python + pipx ----------
-if ! command -v pipx &>/dev/null; then
-  info "Устанавливаю Python и pipx..."
-  install_pkg python3 python3-pip python3-venv wget unzip
-  python3 -m pip install --user pipx
-  python3 -m pipx ensurepath
-  export PATH="$HOME/.local/bin:$PATH"
-fi
+# ---------- pipx + Python ----------
+info "Устанавливаю pipx и Python..."
+install_pkg python3 python3-pip python3-venv zsh wget curl git unzip
+python3 -m pip install --user pipx
+export PATH="$HOME/.local/bin:$PATH"
+python3 -m pipx ensurepath || true
 
-# ---------- Установка gum ----------
+# ---------- gum ----------
 if ! command -v gum &>/dev/null; then
   info "Устанавливаю gum..."
   GUM_VERSION="0.12.0"
@@ -72,19 +77,19 @@ if ! command -v gum &>/dev/null; then
     sudo mv gum /usr/local/bin/
     success "gum установлен"
   else
-    error "❌ Не удалось скачать gum с $GUM_URL"
+    warn "⚠️ gum не удалось скачать. Продолжим без интерактивного выбора"
   fi
   cd -
 fi
 
-# ---------- Установка Flatpak ----------
-if ! command -v flatpak &>/dev/null; then
+# ---------- Flatpak (если не в CI) ----------
+if [[ "$SKIP_GUI" != "true" && ! $(command -v flatpak) ]]; then
   info "Устанавливаю Flatpak..."
-  install_pkg flatpak || warn "Flatpak не установился"
+  install_pkg flatpak
   sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
 fi
 
-# ---------- CLI-инструменты ----------
+# ---------- CLI инструменты ----------
 CLI_TOOLS=(
   "kubectl:install_pkg kubectl"
   "helm:install_pkg helm"
@@ -99,13 +104,17 @@ CLI_TOOLS=(
   "neovim:install_pkg neovim"
 )
 
-# ---------- GUI-инструменты ----------
-GUI_TOOLS=(
-  "VSCode:flatpak install -y flathub com.visualstudio.code"
-  "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
-  "DB Browser:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
-  "Lens:flatpak install -y flathub dev.k8slens.OpenLens"
-)
+# ---------- GUI инструменты (если не в CI) ----------
+if [[ "$SKIP_GUI" != "true" ]]; then
+  GUI_TOOLS=(
+    "VSCode:flatpak install -y flathub com.visualstudio.code"
+    "PgAdmin:flatpak install -y flathub io.pgadmin.pgadmin4"
+    "SQLite Browser:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
+    "Lens:flatpak install -y flathub dev.k8slens.OpenLens"
+  )
+else
+  GUI_TOOLS=()
+fi
 
 # ---------- Выбор инструментов ----------
 select_tools() {
@@ -129,7 +138,7 @@ select_tools() {
 
 select_tools
 
-# ---------- Установка инструментов ----------
+# ---------- Установка ----------
 for item in "${FINAL_LIST[@]}"; do
   TOOL_NAME=$(echo "$item" | cut -d ':' -f1)
   TOOL_CMD=$(echo "$item" | cut -d ':' -f2-)
@@ -137,9 +146,13 @@ for item in "${FINAL_LIST[@]}"; do
   bash -c "$TOOL_CMD" && success "$TOOL_NAME установлен"
 done
 
-# ---------- Установка Oh My Zsh ----------
+# ---------- Oh My Zsh ----------
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   info "Устанавливаю Oh My Zsh..."
+  if ! command -v zsh &>/dev/null; then
+    error "Zsh не установлен. Установка завершена с ошибкой."
+    exit 1
+  fi
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.oh-my-zsh/custom/themes/powerlevel10k
   git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
@@ -153,12 +166,12 @@ curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfile
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.p10k.zsh -o ~/.p10k.zsh
 
 # ---------- Zsh как shell ----------
-if [[ "$SHELL" != *zsh ]]; then
-  chsh -s "$(which zsh)" || warn "Не удалось сменить shell на Zsh"
+if [[ "$SHELL" != *zsh* ]]; then
+  chsh -s "$(command -v zsh)" || warn "Не удалось сменить shell на zsh"
 fi
 
 # ---------- Neovim + Lazy.nvim ----------
-info "Автозапускаю Neovim для Lazy.nvim..."
+info "Настройка Neovim..."
 mkdir -p ~/.config/nvim/lua
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/init.lua -o ~/.config/nvim/init.lua
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/lua/plugins.lua -o ~/.config/nvim/lua/plugins.lua
