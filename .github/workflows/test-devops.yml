@@ -43,6 +43,7 @@ jobs:
             glab docker lazygit
             bat fzf htop ncdu tree
             python pipx pre-commit
+            doctl flyctl sops tldr yq eza
           )
 
           echo "🔍 Проверка CLI инструментов..."
@@ -71,6 +72,9 @@ jobs:
             iterm2
             tailscale
             ngrok
+            pgadmin4
+            db-browser-for-sqlite
+            lens
           )
 
           echo "🖥️ Проверка GUI тулзов (необязательная в CI)..."
@@ -84,50 +88,24 @@ jobs:
 
       - name: Проверка конфигурации Oh My Zsh
         run: |
-          echo "🧪 Проверяю наличие ~/.zshrc и темы Powerlevel10k..."
-          if [[ -f ~/.zshrc ]]; then
-            echo "✅ ~/.zshrc найден"
-          else
-            echo "❌ ~/.zshrc отсутствует"
-            exit 1
-          fi
+          echo "🧪 Проверка ~/.zshrc и Powerlevel10k..."
+          [[ -f ~/.zshrc ]] && echo "✅ ~/.zshrc найден" || (echo "❌ ~/.zshrc отсутствует" && exit 1)
+          grep -q "powerlevel10k/powerlevel10k" ~/.zshrc && echo "✅ Powerlevel10k активирован" || (echo "❌ Тема не активирована" && exit 1)
 
-          if grep -q "powerlevel10k/powerlevel10k" ~/.zshrc; then
-            echo "✅ Тема Powerlevel10k настроена"
-          else
-            echo "❌ Тема Powerlevel10k НЕ настроена"
-            exit 1
-          fi
-
-          echo "📦 Проверка плагинов Oh My Zsh..."
-          PLUGINS=(zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-z)
-          for p in "${PLUGINS[@]}"; do
-            if [[ -d "$HOME/.oh-my-zsh/custom/plugins/$p" ]]; then
-              echo "✅ Плагин $p установлен"
-            else
-              echo "❌ Плагин $p НЕ установлен"
-              exit 1
-            fi
+          echo "📦 Проверка Oh My Zsh плагинов..."
+          for p in zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-z; do
+            [[ -d "$HOME/.oh-my-zsh/custom/plugins/$p" ]] && echo "✅ $p установлен" || (echo "❌ $p НЕ установлен" && exit 1)
           done
 
       - name: Проверка Neovim конфигурации и Lazy.nvim
         run: |
           echo "🧪 Проверка Neovim и Lazy.nvim..."
-          if ! command -v nvim &>/dev/null; then
-            echo "❌ Neovim не найден!"
-            exit 1
-          fi
+          command -v nvim || (echo "❌ Neovim не найден" && exit 1)
+          [[ -f ~/.config/nvim/init.lua ]] && echo "✅ init.lua найден" || (echo "❌ init.lua не найден" && exit 1)
 
-          if [[ -f ~/.config/nvim/init.lua ]]; then
-            echo "✅ init.lua найден"
-          else
-            echo "❌ init.lua отсутствует"
-            exit 1
-          fi
-
-          echo "⚡️ Запускаю nvim +Lazy (headless)..."
-          nvim --headless "+Lazy! sync" +qa
+          echo "⚡️ Lazy.nvim синхронизация..."
+          nvim --headless "+Lazy! sync" +qa || (echo "❌ Lazy.nvim sync провален" && exit 1)
 
       - name: Успех!
         if: success()
-        run: echo "🎉 Установка и конфигурация DevOps-тулзов, Oh My Zsh и Neovim прошла успешно!"
+        run: echo "🎉 Полная установка DevOps-окружения успешно протестирована!"
