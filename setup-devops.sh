@@ -85,7 +85,7 @@ CLI_TOOLS=(
   "🧾 [Tools] yq — jq для YAML:brew install yq"
   "🔐 [Tools] sops — шифрование секретов:brew install sops"
   "📘 [Tools] tldr — упрощённые man:brew install tldr"
-  "📁 [Tools] exa — улучшенный ls:brew install exa"
+  "📁 [Tools] eza — улучшенный ls (exa fork):brew install eza"
 )
 
 # ---------- Пропуск GUI в CI-среде ----------
