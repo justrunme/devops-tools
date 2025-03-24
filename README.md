@@ -16,6 +16,102 @@
 
 ---
 
+### **☁️ Cloud & DevOps**
+
+| Инструмент | Тип | Описание |
+|-----------|-----|----------|
+| [awscli](https://github.com/aws/aws-cli) | CLI | AWS CLI |
+| [azure-cli](https://github.com/Azure/azure-cli) | CLI | Azure CLI |
+| [google-cloud-sdk](https://cloud.google.com/sdk) | CLI/GUI | GCP SDK & GUI |
+| [doctl](https://github.com/digitalocean/doctl) | CLI | DigitalOcean CLI |
+| [flyctl](https://github.com/superfly/flyctl) | CLI | Fly.io CLI |
+| [doppler](https://github.com/DopplerHQ/cli) | CLI | Менеджер секретов |
+| [kubectl](https://kubernetes.io/docs/tasks/tools/) | CLI | CLI для Kubernetes |
+| [helm](https://helm.sh/) | CLI | Менеджер Helm-чартов |
+| [minikube](https://github.com/kubernetes/minikube) | CLI | Локальный кластер Kubernetes |
+| [kind](https://kind.sigs.k8s.io/) | CLI | Kubernetes в Docker |
+| [k9s](https://github.com/derailed/k9s) | CLI | TUI-интерфейс для Kubernetes |
+| [Lens](https://k8slens.dev/) | GUI | Kubernetes GUI |
+| [Tailscale](https://tailscale.com/) | GUI | Mesh VPN через WireGuard |
+| [Teleport](https://goteleport.com/) | GUI | Безопасный доступ к SSH, базам, Kubernetes |
+
+---
+
+### **🏗️ Infrastructure as Code**
+
+| Инструмент | Тип | Описание |
+|-----------|-----|----------|
+| [terraform](https://www.terraform.io/) | CLI | Инфраструктура как код |
+| [terragrunt](https://github.com/gruntwork-io/terragrunt) | CLI | DRY-надстройка над Terraform |
+| [terraform-docs](https://github.com/terraform-docs/terraform-docs) | CLI | Документация из Terraform |
+| [tfsec](https://github.com/aquasecurity/tfsec) | CLI | Security scanner для Terraform |
+
+---
+
+### **🐙 Git & CI/CD**
+
+| Инструмент | Тип | Описание |
+|-----------|-----|----------|
+| [gh](https://cli.github.com/) | CLI | GitHub CLI |
+| [glab](https://github.com/profclems/glab) | CLI | GitLab CLI |
+| [lazygit](https://github.com/jesseduffield/lazygit) | CLI | TUI Git |
+| [pre-commit](https://pre-commit.com/) | CLI | Git хуки и автоформатирование |
+
+---
+
+### **🐳 Docker & Containers**
+
+| Инструмент | Тип | Описание |
+|-----------|-----|----------|
+| [docker](https://docs.docker.com/engine/reference/commandline/cli/) | CLI | Docker CLI |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop) | GUI | GUI и движок Docker |
+
+---
+
+### **🧠 Productivity & Terminal**
+
+| Инструмент | Тип | Описание |
+|-----------|-----|----------|
+| [fzf](https://github.com/junegunn/fzf) | CLI | Fuzzy поиск |
+| [bat](https://github.com/sharkdp/bat) | CLI | `cat` с подсветкой |
+| [htop](https://htop.dev/) | CLI | TUI мониторинг |
+| [ncdu](https://dev.yorhel.nl/ncdu) | CLI | Анализ диска |
+| [tree](http://mama.indstate.edu/users/ice/tree/) | CLI | Деревья каталогов |
+| [eza](https://github.com/eza-community/eza) | CLI | Расширенный `ls` |
+| [tldr](https://tldr.sh/) | CLI | Упрощённые мануалы |
+| [sops](https://github.com/mozilla/sops) | CLI | Шифрование YAML/JSON |
+| [yq](https://github.com/mikefarah/yq) | CLI | YAML-парсер (jq-стиль) |
+| [pipx](https://github.com/pypa/pipx) | CLI | Установка Python-инструментов |
+| [python](https://www.python.org/) | CLI | Язык Python |
+
+---
+
+### **📝 Code & Editors**
+
+| Инструмент | Тип | Описание |
+|-----------|-----|----------|
+| [Neovim](https://neovim.io/) | CLI | Editor + Lazy.nvim + DevOps конфиг |
+| [VS Code](https://code.visualstudio.com/) | GUI | Мощный редактор от Microsoft |
+
+---
+
+### **🛢️ Database Tools**
+
+| Инструмент | Тип | Описание |
+|-----------|-----|----------|
+| [PgAdmin 4](https://www.pgadmin.org/) | GUI | GUI для PostgreSQL |
+| [DB Browser for SQLite](https://sqlitebrowser.org/) | GUI | SQLite GUI |
+
+---
+
+### **🌐 Networking & Tunneling**
+
+| Инструмент | Тип | Описание |
+|-----------|-----|----------|
+| [Ngrok](https://ngrok.com/) | GUI | Проброс портов наружу |
+
+---
+
 ## ⚙️ Установка
 
 ```bash
