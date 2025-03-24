@@ -24,7 +24,7 @@ done
 
 # ---------- Проверка gum ----------
 if ! command -v gum &>/dev/null; then
-  info "Устанавливаю gum (интерфейс выбора)..."
+  info "Устанавливаю gum..."
   brew install charmbracelet/tap/gum
 fi
 
@@ -43,10 +43,10 @@ GUI_TOOLS=(
   "iTerm2 Terminal:brew install --cask iterm2"
   "Tailscale VPN:brew install --cask tailscale"
   "Ngrok Tunnel:brew install --cask ngrok"
-  "Teleport:brew install teleport"
-  "Lens — Kubernetes GUI:brew install --cask lens"
+  "Teleport:brew install --cask teleport"
+  "PgAdmin 4:brew install --cask pgadmin4"
   "DB Browser for SQLite:brew install --cask db-browser-for-sqlite"
-  "PgAdmin 4 — PostgreSQL GUI:brew install --cask pgadmin4"
+  "Lens K8s GUI:brew install --cask lens"
 )
 
 # ---------- CLI инструменты ----------
@@ -121,8 +121,10 @@ for item in "${FINAL_LIST[@]}"; do
 done
 
 # ---------- Установка Oh My Zsh + DevOps-плагины ----------
-if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-  info "Устанавливаю Oh My Zsh и DevOps плагины..."
+if [[ -d "$HOME/.oh-my-zsh" ]]; then
+  info "Oh My Zsh уже установлен — пропускаю установку"
+else
+  info "Устанавливаю Oh My Zsh..."
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.oh-my-zsh/custom/themes/powerlevel10k
   git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
@@ -131,7 +133,7 @@ if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   git clone https://github.com/agkozak/zsh-z ~/.oh-my-zsh/custom/plugins/zsh-z
 fi
 
-# ---------- Конфиги Oh My Zsh с GitHub ----------
+# ---------- Подгружаем конфиги из GitHub ----------
 info "Загружаю конфиги из GitHub..."
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.zshrc -o ~/.zshrc
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.p10k.zsh -o ~/.p10k.zsh
@@ -143,8 +145,8 @@ if [[ "$CI" != "true" ]]; then
   chsh -s /bin/zsh
 fi
 
-# ---------- Автозапуск Neovim и применение конфигурации ----------
-info "Автозапускаю nvim для установки плагинов..."
+# ---------- Автозапуск Neovim для Lazy.nvim ----------
+info "Автозапускаю Neovim (headless) для Lazy.nvim..."
 nvim --headless "+Lazy! sync" +qa || true
 
 # ---------- Финал ----------
