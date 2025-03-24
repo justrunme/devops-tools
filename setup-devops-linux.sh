@@ -74,15 +74,15 @@ if ! command -v gum &>/dev/null; then
 fi
 
 # ---------- Flatpak flathub ----------
-gum_spin "Добавляю flathub..." "sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
+sudo flatpak remote-add --if-not-exists --system flathub https://flathub.org/repo/flathub.flatpakrepo
 
 # ---------- GUI инструменты (Flatpak для user) ----------
 GUI_TOOLS=(
-  "VSCode:flatpak install -y flathub com.visualstudio.code"
+  "VSCode:sudo flatpak install -y --system flathub com.visualstudio.code"
   "Teleport:curl https://goteleport.com/static/install.sh | bash"
-  "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
-  "DB Browser for SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
-  "Lens (K8s GUI):flatpak install -y flathub dev.k8slens.OpenLens"
+  "PgAdmin 4:sudo flatpak install -y --system flathub io.pgadmin.pgadmin4"
+  "DB Browser for SQLite:sudo flatpak install -y --system flathub io.github.sqlitebrowser.sqlitebrowser"
+  "Lens (K8s GUI):sudo flatpak install -y --system flathub dev.k8slens.OpenLens"
 )
 
 # ---------- CLI инструменты ----------
