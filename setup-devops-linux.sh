@@ -74,15 +74,21 @@ fi
 if ! command -v gum &>/dev/null; then
   info "Устанавливаю gum..."
   GUM_VERSION="v0.14.1"
-  GUM_FILE="gum_${GUM_VERSION#v}_Linux_x86_64.tar.gz"
-  GUM_URL="https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/${GUM_FILE}"
+  GUM_TAR="gum_${GUM_VERSION#v}_Linux_x86_64.tar.gz"
+  GUM_URL="https://github.com/charmbracelet/gum/releases/download/${GUM_VERSION}/${GUM_TAR}"
   TMP_DIR=$(mktemp -d)
 
-  if curl -fsSL "$GUM_URL" -o "$TMP_DIR/$GUM_FILE"; then
-    tar -xzf "$TMP_DIR/$GUM_FILE" -C "$TMP_DIR"
-    sudo mv "$TMP_DIR/gum" /usr/local/bin/gum
-    sudo chmod +x /usr/local/bin/gum
-    success "gum установлен"
+  if curl -fsSL "$GUM_URL" -o "$TMP_DIR/$GUM_TAR"; then
+    tar -xzf "$TMP_DIR/$GUM_TAR" -C "$TMP_DIR"
+    GUM_BIN=$(find "$TMP_DIR" -type f -name gum | head -n1)
+    if [[ -f "$GUM_BIN" ]]; then
+      sudo mv "$GUM_BIN" /usr/local/bin/gum
+      sudo chmod +x /usr/local/bin/gum
+      success "gum установлен"
+    else
+      error "Не удалось найти бинарник gum в архиве"
+      exit 1
+    fi
   else
     error "Не удалось скачать gum с $GUM_URL"
     exit 1
