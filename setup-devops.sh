@@ -37,15 +37,15 @@ fi
 
 # ---------- GUI инструменты ----------
 GUI_TOOLS=(
-  "Docker Desktop (через deb):curl -fsSL https://desktop.docker.com/linux/main/amd64/docker-desktop-4.28.0-amd64.deb -o docker.deb && sudo dpkg -i docker.deb || true && rm docker.deb"
-  "Google Cloud SDK:install_pkg google-cloud-sdk"
-  "Visual Studio Code (Flatpak):flatpak install -y flathub com.visualstudio.code"
-  "PgAdmin 4 (Flatpak):flatpak install -y flathub io.pgadmin.pgadmin4"
-  "DB Browser for SQLite (Flatpak):flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
-  "Lens (Flatpak):flatpak install -y flathub dev.k8slens.OpenLens"
-  "Ngrok (deb):curl -fsSL https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip && unzip -o ngrok.zip -d ~/bin && chmod +x ~/bin/ngrok && rm ngrok.zip"
-  "Tailscale VPN (deb):curl -fsSL https://pkgs.tailscale.com/stable/tailscale_1.66.4_amd64.deb -o tailscale.deb && sudo dpkg -i tailscale.deb && rm tailscale.deb"
-  "Teleport 17.3.4 (deb):curl -fsSL https://cdn.teleport.dev/teleport_17.3.4_amd64.deb -o teleport.deb && sudo dpkg -i teleport.deb && rm teleport.deb"
+  "Docker Desktop (AppImage):echo 'TODO: Docker AppImage/manual install'"
+  "Google Cloud SDK:flatpak install -y flathub com.google.CloudSdk"
+  "Visual Studio Code:flatpak install -y flathub com.visualstudio.code"
+  "Tailscale VPN:flatpak install -y flathub com.tailscale.Tailscale"
+  "Ngrok Tunnel:flatpak install -y flathub dev.ngrok.Ngrok"
+  "Teleport 17.3.4:curl -fsSL https://cdn.teleport.dev/teleport_17.3.4_amd64.deb -o teleport.deb && sudo dpkg -i teleport.deb && rm teleport.deb"
+  "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
+  "DB Browser for SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
+  "Lens K8s GUI:flatpak install -y flathub dev.k8slens.OpenLens"
 )
 
 # ---------- CLI инструменты ----------
