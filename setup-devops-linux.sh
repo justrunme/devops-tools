@@ -50,64 +50,61 @@ install_pkg() {
   esac
 }
 
-# ---------- Установка базовых утилит ----------
-info "Обновляю пакеты и устанавливаю unzip, curl, wget..."
-if [[ "$PKG_MANAGER" == "apt" ]]; then
-  sudo apt-get update
+# ---------- Установка базовых CLI пакетов ----------
+info "Устанавливаю базовые утилиты..."
+install_pkg unzip curl wget git zsh neovim python3 python3-pip
+
+# ---------- Установка pipx ----------
+if ! command -v pipx &>/dev/null; then
+  info "Устанавливаю pipx..."
+  python3 -m pip install --user pipx
+  python3 -m pipx ensurepath
 fi
-install_pkg unzip curl wget git
+
+# ---------- Установка Linuxbrew ----------
+if [[ ! -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  info "Устанавливаю Homebrew..."
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # ---------- Установка gum ----------
 if ! command -v gum &>/dev/null; then
   info "Устанавливаю gum..."
-  GUM_DEB=$(curl -s https://api.github.com/repos/charmbracelet/gum/releases/latest \
-    | grep browser_download_url \
-    | grep "gum_.*_linux_amd64.deb" \
-    | cut -d '"' -f 4 | head -n1)
 
-  if [[ -z "$GUM_DEB" ]]; then
-    error "Не удалось получить ссылку на gum .deb файл"
-    exit 1
+  GUM_URL=$(curl -s https://api.github.com/repos/charmbracelet/gum/releases/latest \
+    | grep "browser_download_url" \
+    | grep "linux_amd64.deb" \
+    | cut -d '"' -f 4 | head -n 1)
+
+  if [[ -z "$GUM_URL" || "$GUM_URL" != https:* ]]; then
+    echo -e "${YELLOW}[WARN]${NC} Не удалось получить .deb файл gum. Использую fallback версию..."
+    GUM_URL="https://github.com/charmbracelet/gum/releases/download/v0.13.0/gum_0.13.0_linux_amd64.deb"
   fi
 
-  wget -O /tmp/gum.deb "$GUM_DEB"
+  wget -O /tmp/gum.deb "$GUM_URL"
   sudo dpkg -i /tmp/gum.deb || sudo apt-get install -f -y
   rm -f /tmp/gum.deb
-fi
-
-# ---------- Установка pipx + python ----------
-if ! command -v pipx &>/dev/null; then
-  info "Устанавливаю pipx и python..."
-  install_pkg python3 python3-pip
-  python3 -m pip install --user pipx
-  python3 -m pipx ensurepath
+  success "Gum установлен"
 fi
 
 # ---------- Установка Flatpak ----------
 if ! command -v flatpak &>/dev/null; then
   info "Устанавливаю Flatpak..."
   install_pkg flatpak
-  flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
+  sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
 fi
 
-# ---------- Установка Homebrew (Linuxbrew) ----------
-if ! command -v brew &>/dev/null; then
-  info "Устанавливаю Homebrew..."
-  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-  echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.profile
-fi
-
-# ---------- GUI инструменты (через flatpak) ----------
+# ---------- GUI инструменты ----------
 GUI_TOOLS=(
   "VSCode:flatpak install -y flathub com.visualstudio.code"
   "Teleport:flatpak install -y flathub com.goteleport.Teleport"
   "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
   "DB Browser for SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
-  "Lens:flatpak install -y flathub dev.k8slens.OpenLens"
+  "Lens K8s GUI:flatpak install -y flathub dev.k8slens.OpenLens"
 )
 
-# ---------- CLI инструменты (через apt/dnf/pacman/brew) ----------
+# ---------- CLI инструменты ----------
 CLI_TOOLS=(
   "kubectl:brew install kubectl"
   "helm:brew install helm"
@@ -119,16 +116,16 @@ CLI_TOOLS=(
   "pre-commit:brew install pre-commit"
   "awscli:brew install awscli"
   "azure-cli:brew install azure-cli"
-  "google-cloud-sdk:brew install --cask google-cloud-sdk"
+  "google-cloud-sdk:brew install google-cloud-sdk"
   "doctl:brew install doctl"
   "flyctl:brew install flyctl"
-  "doppler:brew install doppler"
+  "doppler:brew install dopplerhq/cli/doppler"
   "gh:brew install gh"
   "glab:brew install glab"
   "docker:brew install docker"
   "lazygit:brew install lazygit"
-  "bat:brew install bat"
   "fzf:brew install fzf"
+  "bat:brew install bat"
   "htop:brew install htop"
   "ncdu:brew install ncdu"
   "tree:brew install tree"
@@ -136,16 +133,16 @@ CLI_TOOLS=(
   "sops:brew install sops"
   "tldr:brew install tldr"
   "eza:brew install eza"
-  "neovim + конфиг:brew install neovim && mkdir -p ~/.config/nvim/lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/init.lua -o ~/.config/nvim/init.lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/lua/plugins.lua -o ~/.config/nvim/lua/plugins.lua && git clone https://github.com/folke/lazy.nvim ~/.local/share/nvim/lazy/lazy.nvim"
+  "Neovim + Lazy.nvim:mkdir -p ~/.config/nvim/lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/init.lua -o ~/.config/nvim/init.lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/lua/plugins.lua -o ~/.config/nvim/lua/plugins.lua && git clone https://github.com/folke/lazy.nvim ~/.local/share/nvim/lazy/lazy.nvim"
 )
 
 # ---------- Выбор инструментов ----------
 if [[ "$MODE" == "" ]]; then
   CHOICES=$(printf "%s\n\n%s\n\n%s" \
-    "===== GUI =====" "${GUI_TOOLS[@]}" \
-    "===== CLI =====" "${CLI_TOOLS[@]}" |
+    "===== 🖥️ GUI инструменты =====" "${GUI_TOOLS[@]}" \
+    "===== 🛠️ CLI инструменты =====" "${CLI_TOOLS[@]}" |
     grep -v '^$' |
-    gum choose --no-limit --height=40 --header="Выбери DevOps-инструменты:")
+    gum choose --no-limit --height=40 --header="Выбери DevOps инструменты:")
   FINAL_LIST=($CHOICES)
 elif [[ "$MODE" == "all" ]]; then
   FINAL_LIST=("${GUI_TOOLS[@]}" "${CLI_TOOLS[@]}")
@@ -155,7 +152,7 @@ elif [[ "$MODE" == "cli" ]]; then
   FINAL_LIST=("${CLI_TOOLS[@]}")
 fi
 
-# ---------- Установка ----------
+# ---------- Установка инструментов ----------
 for item in "${FINAL_LIST[@]}"; do
   TOOL_NAME=$(echo "$item" | cut -d ':' -f1)
   TOOL_CMD=$(echo "$item" | cut -d ':' -f2-)
@@ -163,9 +160,9 @@ for item in "${FINAL_LIST[@]}"; do
   success "$TOOL_NAME установлен"
 done
 
-# ---------- Oh My Zsh и DevOps-плагины ----------
+# ---------- Установка Oh My Zsh ----------
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-  info "Устанавливаю Oh My Zsh и плагины..."
+  info "Устанавливаю Oh My Zsh..."
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.oh-my-zsh/custom/themes/powerlevel10k
   git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
@@ -174,21 +171,22 @@ if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   git clone https://github.com/agkozak/zsh-z ~/.oh-my-zsh/custom/plugins/zsh-z
 fi
 
+# ---------- Конфиги из GitHub ----------
 info "Загружаю .zshrc и .p10k.zsh..."
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.zshrc -o ~/.zshrc
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.p10k.zsh -o ~/.p10k.zsh
 success "Конфиги установлены"
 
-# ---------- Смена shell ----------
-if [[ "$CI" != "true" ]]; then
-  info "Делаю Zsh shell'ом по умолчанию..."
-  chsh -s "$(which zsh)" || true
+# ---------- Смена shell на Zsh ----------
+if [[ "$SHELL" != *zsh ]]; then
+  info "Смена shell на Zsh..."
+  chsh -s "$(which zsh)"
 fi
 
-# ---------- Lazy.nvim sync ----------
-info "Синхронизация Lazy.nvim (headless)..."
+# ---------- Lazy.nvim автозагрузка ----------
+info "Автозапускаю Neovim для Lazy.nvim..."
 nvim --headless "+Lazy! sync" +qa || true
 
 # ---------- Финал ----------
 echo -e "\n${GREEN}✅ Установка завершена!${NC}"
-echo -e "${YELLOW}➡️ Проверь: nvim + :Lazy и source ~/.zshrc${NC}"
+echo -e "${YELLOW}➡️ Перезапусти терминал или выполни: source ~/.zshrc${NC}"
