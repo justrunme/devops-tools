@@ -44,34 +44,43 @@ fi
 # ---------- Обёртка для установки пакетов ----------
 install_pkg() {
   case "$PKG_MANAGER" in
-    apt) sudo apt-get install -y "$@" ;;
+    apt) sudo apt-get update && sudo apt-get install -y "$@" ;;
     dnf) sudo dnf install -y "$@" ;;
-    pacman) sudo pacman -S --noconfirm "$@" ;;
+    pacman) sudo pacman -Syu --noconfirm "$@" ;;
   esac
 }
+
+# ---------- Установка Homebrew (Linuxbrew) ----------
+if ! command -v brew &>/dev/null; then
+  info "Устанавливаю Homebrew..."
+  sudo mkdir -p /home/linuxbrew/.linuxbrew && sudo chown -R "$(whoami)" /home/linuxbrew
+  bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+# ---------- Установка pipx и Python ----------
+install_pkg python3 python3-pip
+if ! command -v pipx &>/dev/null; then
+  info "Устанавливаю pipx..."
+  pip install --user pipx
+  pipx ensurepath
+fi
 
 # ---------- Установка gum ----------
 if ! command -v gum &>/dev/null; then
   info "Устанавливаю gum..."
-  if [[ "$PKG_MANAGER" == "apt" ]]; then
-    sudo mkdir -p /etc/apt/keyrings
-    sudo apt-get update && sudo apt-get install -y unzip curl
-    curl -s https://api.github.com/repos/charmbracelet/gum/releases/latest \
-      | grep browser_download_url \
-      | grep linux_amd64.deb \
-      | cut -d '"' -f 4 \
-      | wget -qi -
-    sudo dpkg -i gum_*_linux_amd64.deb
-  else
-    install_pkg gum
-  fi
+  install_pkg unzip curl wget
+  GUM_DEB=$(curl -s https://api.github.com/repos/charmbracelet/gum/releases/latest | grep browser_download_url | grep linux_amd64.deb | cut -d '"' -f 4)
+  wget -O /tmp/gum.deb "$GUM_DEB"
+  sudo dpkg -i /tmp/gum.deb
+  rm /tmp/gum.deb
 fi
 
-# ---------- Проверка Flatpak ----------
+# ---------- Установка Flatpak ----------
 if ! command -v flatpak &>/dev/null; then
   info "Устанавливаю Flatpak..."
   install_pkg flatpak
-  flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+  sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 fi
 
 # ---------- GUI инструменты ----------
@@ -95,6 +104,8 @@ CLI_TOOLS=(
   "htop:install_pkg htop"
   "ncdu:install_pkg ncdu"
   "tree:install_pkg tree"
+  "yq:install_pkg yq"
+  "sops:install_pkg sops"
   "neovim:install_pkg neovim"
 )
 
@@ -104,7 +115,7 @@ if [[ "$MODE" == "" ]]; then
     "===== 🖥️ GUI инструменты =====" "${GUI_TOOLS[@]}" \
     "===== 🛠️ CLI инструменты =====" "${CLI_TOOLS[@]}" |
     grep -v '^$' |
-    gum choose --no-limit --height=40 --header="Выбери инструменты:")
+    gum choose --no-limit --height=40 --header="Выбери инструменты: ")
   FINAL_LIST=($CHOICES)
 elif [[ "$MODE" == "all" ]]; then
   FINAL_LIST=("${GUI_TOOLS[@]}" "${CLI_TOOLS[@]}")
@@ -114,7 +125,7 @@ elif [[ "$MODE" == "cli" ]]; then
   FINAL_LIST=("${CLI_TOOLS[@]}")
 fi
 
-# ---------- Установка ----------
+# ---------- Установка инструментов ----------
 for item in "${FINAL_LIST[@]}"; do
   TOOL_NAME=$(echo "$item" | cut -d ':' -f1)
   TOOL_CMD=$(echo "$item" | cut -d ':' -f2-)
@@ -136,13 +147,17 @@ if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   git clone https://github.com/agkozak/zsh-z ~/.oh-my-zsh/custom/plugins/zsh-z
 fi
 
-info "Подгружаю .zshrc и .p10k.zsh из GitHub..."
+# ---------- Подгрузка конфигов ----------
+info "Загружаю конфиги..."
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.zshrc -o ~/.zshrc
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.p10k.zsh -o ~/.p10k.zsh
-success "Конфиги загружены"
 
-# ---------- Автозапуск Neovim Lazy.nvim ----------
-info "Автозапускаю Neovim (headless) для Lazy.nvim..."
+# ---------- Смена shell на Zsh ----------
+info "Меняю shell на Zsh..."
+chsh -s "$(which zsh)"
+
+# ---------- Автозапуск Neovim для Lazy.nvim ----------
+info "Автозапускаю Neovim..."
 nvim --headless "+Lazy! sync" +qa || true
 
 # ---------- Финал ----------
