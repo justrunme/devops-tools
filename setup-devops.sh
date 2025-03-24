@@ -22,80 +22,74 @@ for arg in "$@"; do
   esac
 done
 
+# ---------- Проверка gum ----------
+if ! command -v gum &>/dev/null; then
+  info "Устанавливаю gum..."
+  brew install charmbracelet/tap/gum
+fi
+
+# ---------- Проверка pipx ----------
+if ! command -v pipx &>/dev/null; then
+  info "Устанавливаю pipx..."
+  brew install pipx
+  pipx ensurepath
+fi
+
+# ---------- GUI инструменты ----------
+GUI_TOOLS=(
+  "Docker Desktop:brew install --cask docker"
+  "Google Cloud SDK:brew install --cask google-cloud-sdk"
+  "Visual Studio Code:brew install --cask visual-studio-code"
+  "iTerm2 Terminal:brew install --cask iterm2"
+  "Tailscale VPN:brew install --cask tailscale"
+  "Ngrok Tunnel:brew install --cask ngrok"
+  "Teleport:brew install --cask teleport"
+  "PgAdmin 4:brew install --cask pgadmin4"
+  "DB Browser for SQLite:brew install --cask db-browser-for-sqlite"
+  "Lens K8s GUI:brew install --cask lens"
+)
+
+# ---------- CLI инструменты ----------
+CLI_TOOLS=(
+  "kubectl:brew install kubectl"
+  "helm:brew install helm"
+  "minikube:brew install minikube"
+  "kind:brew install kind"
+  "k9s:brew install k9s"
+  "terraform:brew install terraform"
+  "terragrunt:brew install terragrunt"
+  "terraform-docs:brew install terraform-docs"
+  "tfsec:brew install tfsec"
+  "pre-commit:brew install pre-commit"
+  "awscli:brew install awscli"
+  "azure-cli:brew install azure-cli"
+  "google-cloud-sdk:brew install google-cloud-sdk"
+  "doctl:brew install doctl"
+  "flyctl:brew install flyctl"
+  "doppler:brew install dopplerhq/cli/doppler"
+  "gh:brew install gh"
+  "glab:brew install glab"
+  "docker:brew install docker"
+  "lazygit:brew install lazygit"
+  "python/pipx:brew install python && brew install pipx && pipx ensurepath"
+  "fzf:brew install fzf"
+  "bat:brew install bat"
+  "htop:brew install htop"
+  "ncdu:brew install ncdu"
+  "tree:brew install tree"
+  "yq:brew install yq"
+  "sops:brew install sops"
+  "tldr:brew install tldr"
+  "eza:brew install eza"
+  "Neovim + конфиг:brew install neovim && mkdir -p ~/.config/nvim/lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/init.lua -o ~/.config/nvim/init.lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/lua/plugins.lua -o ~/.config/nvim/lua/plugins.lua && git clone https://github.com/folke/lazy.nvim ~/.local/share/nvim/lazy/lazy.nvim"
+)
+
 # ---------- Пропуск GUI в CI-среде ----------
 if [[ "$CI" == "true" ]]; then
   info "CI-среда — GUI-инструменты пропущены"
   GUI_TOOLS=()
   [[ "$MODE" == "all" || "$MODE" == "gui" ]] && MODE="cli"
 fi
-
-# ---------- Проверка gum ----------
-if ! command -v gum &>/dev/null; then
-  info "Устанавливаю gum..."
-  sudo apt-get update && sudo apt-get install -y wget tar
-  curl -s https://api.github.com/repos/charmbracelet/gum/releases/latest |
-    grep browser_download_url |
-    grep linux_amd64.tar.gz |
-    cut -d '"' -f 4 |
-    wget -qi - -O /tmp/gum.tar.gz
-  mkdir -p /tmp/gum && tar -xzf /tmp/gum.tar.gz -C /tmp/gum
-  sudo mv /tmp/gum/gum /usr/local/bin/
-  rm -rf /tmp/gum /tmp/gum.tar.gz
-  success "gum установлен"
-fi
-
-# ---------- Проверка pipx ----------
-if ! command -v pipx &>/dev/null; then
-  info "Устанавливаю pipx..."
-  sudo apt-get update && sudo apt-get install -y python3-pip
-  python3 -m pip install --user pipx
-  python3 -m pipx ensurepath
-fi
-
-# ---------- GUI инструменты ----------
-GUI_TOOLS=(
-  "Docker Engine:sudo apt-get install -y docker.io"
-  "Google Cloud SDK:sudo apt-get install -y google-cloud-sdk"
-  "Visual Studio Code:flatpak install -y flathub com.visualstudio.code"
-  "Tailscale VPN:sudo apt-get install -y tailscale"
-  "Ngrok Tunnel:sudo snap install ngrok"
-  "Teleport 17.3.4:curl -LO https://github.com/gravitational/teleport/releases/download/v17.3.4/teleport_17.3.4_amd64.deb && sudo dpkg -i teleport_17.3.4_amd64.deb && rm teleport_17.3.4_amd64.deb"
-  "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
-  "DB Browser for SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
-  "Lens (K8s GUI):flatpak install -y flathub dev.k8slens.OpenLens"
-)
-
-# ---------- CLI инструменты ----------
-CLI_TOOLS=(
-  "kubectl:sudo apt-get install -y kubectl"
-  "helm:sudo apt-get install -y helm"
-  "kind:sudo apt-get install -y kind"
-  "k9s:sudo apt-get install -y k9s"
-  "terraform:sudo apt-get install -y terraform"
-  "terragrunt:sudo apt-get install -y terragrunt"
-  "terraform-docs:sudo apt-get install -y terraform-docs"
-  "tfsec:sudo apt-get install -y tfsec"
-  "pre-commit:sudo apt-get install -y pre-commit"
-  "awscli:sudo apt-get install -y awscli"
-  "azure-cli:sudo apt-get install -y azure-cli"
-  "google-cloud-sdk:sudo apt-get install -y google-cloud-sdk"
-  "doctl:sudo apt-get install -y doctl"
-  "flyctl:sudo apt-get install -y flyctl"
-  "glab:sudo apt-get install -y glab"
-  "docker:sudo apt-get install -y docker"
-  "lazygit:sudo apt-get install -y lazygit"
-  "python/pipx:sudo apt-get install -y python3 && python3 -m pip install --user pipx && pipx ensurepath"
-  "fzf:sudo apt-get install -y fzf"
-  "bat:sudo apt-get install -y bat"
-  "htop:sudo apt-get install -y htop"
-  "ncdu:sudo apt-get install -y ncdu"
-  "tree:sudo apt-get install -y tree"
-  "yq:sudo apt-get install -y yq"
-  "sops:sudo apt-get install -y sops"
-  "tldr:sudo apt-get install -y tldr"
-  "eza:sudo apt-get install -y eza"
-  "Neovim + конфиг:sudo apt-get install -y neovim && mkdir -p ~/.config/nvim/lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/init.lua -o ~/.config/nvim/init.lua && curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/nvim/lua/plugins.lua -o ~/.config/nvim/lua/plugins.lua && git clone https://github.com/folke/lazy.nvim ~/.local/share/nvim/lazy/lazy.nvim"
-)
 
 # ---------- Выбор инструментов ----------
 case "$MODE" in
@@ -116,12 +110,20 @@ esac
 for item in "${FINAL_LIST[@]}"; do
   TOOL_NAME=$(echo "$item" | cut -d ':' -f1)
   TOOL_CMD=$(echo "$item" | cut -d ':' -f2-)
-  gum spin --title "Устанавливаю $TOOL_NAME..." -- bash -c "$TOOL_CMD"
-  success "$TOOL_NAME установлен"
+  TOOL_ID=$(echo "$TOOL_CMD" | awk '{print $3}')
+
+  if brew list "$TOOL_ID" &>/dev/null || brew list --cask "$TOOL_ID" &>/dev/null; then
+    success "$TOOL_NAME уже установлен"
+  else
+    gum spin --title "Устанавливаю $TOOL_NAME..." -- bash -c "$TOOL_CMD"
+    success "$TOOL_NAME установлен"
+  fi
 done
 
 # ---------- Установка Oh My Zsh + DevOps плагины ----------
-if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+if [[ -d "$HOME/.oh-my-zsh" ]]; then
+  info "Oh My Zsh уже установлен — пропускаю установку"
+else
   info "Устанавливаю Oh My Zsh..."
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/.oh-my-zsh/custom/themes/powerlevel10k
@@ -131,19 +133,23 @@ if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   git clone https://github.com/agkozak/zsh-z ~/.oh-my-zsh/custom/plugins/zsh-z
 fi
 
+# ---------- Загрузка .zshrc и .p10k.zsh ----------
 info "Загружаю конфиги из GitHub..."
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.zshrc -o ~/.zshrc
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.p10k.zsh -o ~/.p10k.zsh
 success ".zshrc и .p10k.zsh установлены"
 
+# ---------- Смена shell на Zsh (если не в CI) ----------
 if [[ "$CI" != "true" ]]; then
   info "Делаю Zsh shell'ом по умолчанию..."
-  chsh -s $(which zsh)
+  chsh -s /bin/zsh
 fi
 
+# ---------- Автоматический запуск Neovim для Lazy.nvim ----------
 info "Автозапускаю Neovim (headless) для Lazy.nvim..."
 nvim --headless "+Lazy! sync" +qa || true
 
+# ---------- Финал ----------
 echo -e "\n${GREEN}✅ Установка завершена!${NC}"
 echo -e "${YELLOW}➡️ Проверь Neovim: nvim + :Lazy${NC}"
 echo -e "${YELLOW}➡️ Перезапусти терминал или выполни: source ~/.zshrc${NC}"
