@@ -37,7 +37,7 @@ fi
 
 # ---------- GUI инструменты ----------
 GUI_TOOLS=(
-  "Docker Desktop:sudo apt-get install -y docker.io"
+  "Docker Engine:sudo apt-get install -y docker.io"
   "Google Cloud SDK:sudo apt-get install -y google-cloud-sdk"
   "Visual Studio Code:flatpak install -y flathub com.visualstudio.code"
   "Tailscale VPN:sudo apt-get install -y tailscale"
