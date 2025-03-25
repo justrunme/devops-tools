@@ -22,31 +22,19 @@ for arg in "$@"; do
   esac
 done
 
-# ---------- Проверка gum ----------
-if ! command -v gum &>/dev/null; then
-  info "Устанавливаю gum..."
-  sudo apt-get update && sudo apt-get install -y wget tar gzip
-  GUM_URL=$(curl -s https://api.github.com/repos/charmbracelet/gum/releases/latest |
-    grep "browser_download_url" |
-    grep "linux_amd64.tar.gz" |
-    cut -d '"' -f 4 | head -n 1)
-  if [[ -z "$GUM_URL" ]]; then
-    error "Не удалось найти ссылку на gum."
-    exit 1
-  fi
-  wget -q "$GUM_URL" -O /tmp/gum.tar.gz
-  mkdir -p /tmp/gum
-  tar -xzf /tmp/gum.tar.gz -C /tmp/gum
-  sudo mv /tmp/gum/gum /usr/local/bin/
-  rm -rf /tmp/gum /tmp/gum.tar.gz
-  success "gum установлен"
-fi
-
 # ---------- Пропуск GUI в CI-среде ----------
 if [[ "$CI" == "true" ]]; then
   info "CI-среда — GUI-инструменты пропущены"
   GUI_TOOLS=()
   [[ "$MODE" == "all" || "$MODE" == "gui" ]] && MODE="cli"
+fi
+
+# ---------- Проверка pipx ----------
+if ! command -v pipx &>/dev/null; then
+  info "Устанавливаю pipx..."
+  sudo apt-get update && sudo apt-get install -y python3-pip
+  python3 -m pip install --user pipx
+  python3 -m pipx ensurepath
 fi
 
 # ---------- GUI инструменты ----------
@@ -56,7 +44,6 @@ GUI_TOOLS=(
   "Visual Studio Code:flatpak install -y flathub com.visualstudio.code"
   "Tailscale VPN:sudo apt-get install -y tailscale"
   "Ngrok Tunnel:sudo snap install ngrok"
-  "Teleport 17.3.4:true"  # Пропускаем установку в CI, т.к. нестабильная
   "PgAdmin 4:flatpak install -y flathub io.pgadmin.pgadmin4"
   "DB Browser for SQLite:flatpak install -y flathub io.github.sqlitebrowser.sqlitebrowser"
   "Lens (K8s GUI):flatpak install -y flathub dev.k8slens.OpenLens"
@@ -81,7 +68,7 @@ CLI_TOOLS=(
   "glab:sudo apt-get install -y glab"
   "docker:sudo apt-get install -y docker"
   "lazygit:sudo apt-get install -y lazygit"
-  "python/pipx:sudo apt-get install -y python3 python3-pip && pip3 install --user pipx && pipx ensurepath"
+  "python/pipx:sudo apt-get install -y python3 && python3 -m pip install --user pipx && pipx ensurepath"
   "fzf:sudo apt-get install -y fzf"
   "bat:sudo apt-get install -y bat"
   "htop:sudo apt-get install -y htop"
@@ -109,7 +96,7 @@ case "$MODE" in
     ;;
 esac
 
-# ---------- Установка ----------
+# ---------- Установка инструментов ----------
 for item in "${FINAL_LIST[@]}"; do
   TOOL_NAME=$(echo "$item" | cut -d ':' -f1)
   TOOL_CMD=$(echo "$item" | cut -d ':' -f2-)
@@ -117,7 +104,7 @@ for item in "${FINAL_LIST[@]}"; do
   success "$TOOL_NAME установлен"
 done
 
-# ---------- Oh My Zsh ----------
+# ---------- Установка Oh My Zsh + DevOps плагины ----------
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   info "Устанавливаю Oh My Zsh..."
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
@@ -133,17 +120,14 @@ curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfile
 curl -fsSL https://raw.githubusercontent.com/justrunme/devops-tools/main/dotfiles/.p10k.zsh -o ~/.p10k.zsh
 success ".zshrc и .p10k.zsh установлены"
 
-# ---------- Zsh по умолчанию ----------
 if [[ "$CI" != "true" ]]; then
   info "Делаю Zsh shell'ом по умолчанию..."
   chsh -s $(which zsh)
 fi
 
-# ---------- Lazy.nvim ----------
 info "Автозапускаю Neovim (headless) для Lazy.nvim..."
 nvim --headless "+Lazy! sync" +qa || true
 
-# ---------- Финал ----------
 echo -e "\n${GREEN}✅ Установка завершена!${NC}"
 echo -e "${YELLOW}➡️ Проверь Neovim: nvim + :Lazy${NC}"
 echo -e "${YELLOW}➡️ Перезапусти терминал или выполни: source ~/.zshrc${NC}"
