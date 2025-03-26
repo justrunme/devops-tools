@@ -10,6 +10,23 @@ function info()    { echo -e "${YELLOW}[INFO]${NC} $1"; }
 function success() { echo -e "${GREEN}[OK]${NC} $1"; }
 function error()   { echo -e "${RED}[ERROR]${NC} $1"; }
 
+# ---------- Проверка Xcode CLI Tools ----------
+if ! xcode-select -p &>/dev/null; then
+  info "Устанавливаю Xcode Command Line Tools..."
+  xcode-select --install
+  echo -e "${YELLOW}⏳ Заверши установку CLI Tools в появившемся окне, затем перезапусти скрипт${NC}"
+  exit 1
+fi
+
+# ---------- Проверка и установка Homebrew ----------
+if ! command -v brew &>/dev/null; then
+  info "Устанавливаю Homebrew..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+  success "Homebrew установлен"
+fi
+
 # ---------- Аргументы ----------
 MODE=""
 for arg in "$@"; do
