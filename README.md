@@ -249,6 +249,14 @@ nvim +Lazy
 
 ---
 
+## Author
+
+Andrey Lesnikov  
+Senior DevOps & AI Platform Engineer  
+https://orcid.org/0009-0004-7583-4314
+
+---
+
 Лицензия
 
 MIT © justrunme
